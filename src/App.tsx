@@ -9,6 +9,8 @@ import {
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import AuthPage from "./pages/AuthPage";
 import Dashboard from "./pages/Dashboard";
+import LandingPage from "./pages/LandindPage";
+import AnimatedWrapper from "./components/AnimatedWrapper";
 
 const PrivateRoute: React.FC<{ children: JSX.Element }> = ({ children }) => {
   // const { user } = useAuth();
@@ -38,26 +40,32 @@ const RequireAuthRedirect: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <AuthProvider>
-      <Router>
-        <Routes>
-          <Route path="/auth" element={<AuthPage />} />
-          <Route
-            path="/dashboard"
-            element={
-              <PrivateRoute>
-                <Dashboard />
-              </PrivateRoute>
-            }
-          />
-          <Route path="/" element={<RequireAuthRedirect />} />
-          <Route
-            path="*"
-            element={<p className="text-center mt-20">404 - Page Not Found</p>}
-          />
-        </Routes>
-      </Router>
-    </AuthProvider>
+    <AnimatedWrapper>
+      <AuthProvider>
+        <Router>
+          <Routes>
+            {/* Public landing page */}
+            <Route path="/" element={<LandingPage />} />
+
+            {/* Auth routes */}
+            <Route path="/auth" element={<AuthPage />} />
+
+            {/* Protected dashboard */}
+            <Route
+              path="/dashboard"
+              element={
+                <PrivateRoute>
+                  <Dashboard />
+                </PrivateRoute>
+              }
+            />
+
+            {/* Redirect any unknown route to landing or 404 */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Router>
+      </AuthProvider>
+    </AnimatedWrapper>
   );
 };
 
