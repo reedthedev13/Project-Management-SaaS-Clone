@@ -1,39 +1,72 @@
 import React from "react";
+import { motion } from "framer-motion";
+import { useTheme } from "../contexts/ThemeContext";
 
 const Sidebar: React.FC = () => {
+  const { darkMode } = useTheme();
+
+  // Motion variants
+  const sidebarVariants = {
+    hidden: { x: -50, opacity: 0 },
+    visible: { x: 0, opacity: 1, transition: { duration: 0.4 } },
+  };
+
+  const linkVariants = {
+    hover: { scale: 1.05 },
+  };
+
+  const navItems = ["Dashboard", "Projects", "Tasks", "Calendar", "Settings"];
+
   return (
-    <aside className="w-64 bg-white shadow-md min-h-screen p-6 flex flex-col">
+    <motion.aside
+      className={`
+        w-64 min-h-screen p-6 flex flex-col
+        bg-white dark:bg-gray-900
+        border-r border-gray-200 dark:border-gray-700
+        transition-colors duration-300
+      `}
+      initial="hidden"
+      animate="visible"
+      variants={sidebarVariants}
+    >
+      {/* User Info */}
       <div className="mb-10">
-        <h2 className="text-2xl font-bold mb-4">Project Management</h2>
+        <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">
+          Project Management
+        </h2>
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold">
             JD
           </div>
-          <span className="font-semibold text-gray-700">John Doe</span>
+          <span className="font-semibold text-gray-700 dark:text-gray-300">
+            John Doe
+          </span>
         </div>
       </div>
 
-      <nav className="flex flex-col space-y-4">
-        <a href="#" className="text-gray-700 hover:text-indigo-600 font-medium">
-          Dashboard
-        </a>
-        <a href="#" className="text-gray-700 hover:text-indigo-600 font-medium">
-          Projects
-        </a>
-        <a href="#" className="text-gray-700 hover:text-indigo-600 font-medium">
-          Tasks
-        </a>
-        <a href="#" className="text-gray-700 hover:text-indigo-600 font-medium">
-          Calendar
-        </a>
-        <a href="#" className="text-gray-700 hover:text-indigo-600 font-medium">
-          Settings
-        </a>
-        <button className="mt-auto text-red-600 hover:text-red-800 font-semibold">
-          Logout
-        </button>
+      {/* Navigation */}
+      <nav className="flex flex-col space-y-4 flex-1">
+        {navItems.map((item) => (
+          <motion.a
+            key={item}
+            href="#"
+            className="text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium transition-colors duration-200"
+            whileHover="hover"
+            variants={linkVariants}
+          >
+            {item}
+          </motion.a>
+        ))}
       </nav>
-    </aside>
+
+      {/* Logout Button */}
+      <motion.button
+        className="mt-auto text-red-600 hover:text-red-800 dark:text-red-500 dark:hover:text-red-400 font-semibold transition-colors duration-200"
+        whileHover={{ scale: 1.05 }}
+      >
+        Logout
+      </motion.button>
+    </motion.aside>
   );
 };
 
