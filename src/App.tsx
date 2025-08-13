@@ -1,26 +1,64 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import type { JSX } from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import AuthPage from "./pages/AuthPage";
+import Dashboard from "./pages/Dashboard";
 
-function App() {
+const PrivateRoute: React.FC<{ children: JSX.Element }> = ({ children }) => {
+  // const { user } = useAuth();
+
+  // Optional: show nothing or a spinner while auth state is loading
+  // if (user === undefined) return null; // temporary comment out to allow easy access to other components
+
+  /* if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
+*/
+  return children;
+};
+
+const RequireAuthRedirect: React.FC = () => {
+  const { user } = useAuth();
+
+  // Optional: wait while loading auth state
+  if (user === undefined) return null;
+
+  if (user) {
+    return <Navigate to="/dashboard" replace />;
+  } else {
+    return <Navigate to="/auth" replace />;
+  }
+};
+
+const App: React.FC = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/auth" element={<AuthPage />} />
+          <Route
+            path="/dashboard"
+            element={
+              <PrivateRoute>
+                <Dashboard />
+              </PrivateRoute>
+            }
+          />
+          <Route path="/" element={<RequireAuthRedirect />} />
+          <Route
+            path="*"
+            element={<p className="text-center mt-20">404 - Page Not Found</p>}
+          />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
-}
+};
 
 export default App;
