@@ -1,45 +1,40 @@
 import React from "react";
-
 import AnimatedWrapper from "../components/AnimatedWrapper";
-
 import DashboardLayout from "../components/DashboardLayout";
+import DashboardCards from "../components/DashboardCards";
 
 const Dashboard: React.FC = () => {
+  const mockProjects = [
+    {
+      id: 1,
+      title: "Website Redesign",
+      tasksCompleted: 5,
+      tasksTotal: 12,
+      tasks: [
+        { id: 1, title: "Create wireframes", completed: true },
+        { id: 2, title: "Design UI mockups", completed: false },
+        { id: 3, title: "Review with team", completed: false },
+      ],
+    },
+    {
+      id: 2,
+      title: "Marketing Campaign",
+      tasksCompleted: 8,
+      tasksTotal: 10,
+      tasks: [
+        { id: 1, title: "Set up landing page", completed: true },
+        { id: 2, title: "Write ad copy", completed: true },
+        { id: 3, title: "Launch campaign", completed: false },
+      ],
+    },
+  ];
   return (
     <AnimatedWrapper>
       <DashboardLayout title="Dashboard">
-        <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100 transition-colors duration-300">
-          Welcome to your dashboard!
+        <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">
+          Your Projects
         </h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div className="p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-sm dark:shadow-black/20 border border-gray-100 dark:border-gray-700 transition-colors duration-300">
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-2">
-              Section 1
-            </h3>
-            <p className="text-gray-600 dark:text-gray-300">
-              Some description or content for this section.
-            </p>
-          </div>
-
-          <div className="p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-sm dark:shadow-black/20 border border-gray-100 dark:border-gray-700 transition-colors duration-300">
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-2">
-              Section 2
-            </h3>
-            <p className="text-gray-600 dark:text-gray-300">
-              Some description or content for this section.
-            </p>
-          </div>
-
-          <div className="p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-sm dark:shadow-black/20 border border-gray-100 dark:border-gray-700 transition-colors duration-300">
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-2">
-              Section 3
-            </h3>
-            <p className="text-gray-600 dark:text-gray-300">
-              Some description or content for this section.
-            </p>
-          </div>
-        </div>
+        <DashboardCards projects={mockProjects} />
       </DashboardLayout>
     </AnimatedWrapper>
   );
