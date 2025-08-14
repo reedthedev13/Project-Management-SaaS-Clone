@@ -25,8 +25,11 @@ const DashboardCard: React.FC<DashboardCardProps> = ({ project }) => {
 
   return (
     <motion.div
-      className="p-6 border rounded shadow-md bg-white dark:bg-gray-800"
-      whileHover={{ scale: 1.03, boxShadow: "0 10px 20px rgba(0,0,0,0.12)" }}
+      className="p-6 border rounded-lg shadow-sm bg-white dark:bg-gray-900 dark:border-gray-700"
+      whileHover={{
+        scale: 1.03,
+        boxShadow: "0 12px 24px rgba(0,0,0,0.25)",
+      }}
       transition={{ type: "spring", stiffness: 300, damping: 20 }}
     >
       {/* Header */}
@@ -62,19 +65,28 @@ const DashboardCard: React.FC<DashboardCardProps> = ({ project }) => {
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="mt-2 overflow-hidden space-y-1"
+            className="mt-2 overflow-hidden space-y-2"
           >
             {project.tasks.map((task) => (
               <li
                 key={`${project.id}-${task.id}`}
-                className="flex justify-between items-center p-1 border rounded"
+                className="flex justify-between items-center p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition"
               >
                 <span
-                  className={task.completed ? "line-through text-gray-400" : ""}
+                  className={`${
+                    task.completed
+                      ? "line-through text-gray-400 dark:text-gray-500"
+                      : "text-gray-800 dark:text-gray-100"
+                  }`}
                 >
                   {task.title}
                 </span>
-                <input type="checkbox" checked={task.completed} readOnly />
+                <input
+                  type="checkbox"
+                  checked={task.completed}
+                  readOnly
+                  className="accent-indigo-600 dark:accent-indigo-500"
+                />
               </li>
             ))}
           </motion.ul>
