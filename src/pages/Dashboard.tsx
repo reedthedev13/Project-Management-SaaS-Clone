@@ -1,12 +1,10 @@
-// Dashboard.tsx
-import React, { useState } from "react";
+// src/pages/Dashboard.tsx
+import React from "react";
 import AnimatedWrapper from "../components/AnimatedWrapper";
 import DashboardLayout from "../components/DashboardLayout";
 import DashboardCards from "../components/DashboardCards";
 
 const Dashboard: React.FC = () => {
-  const [expandedId, setExpandedId] = useState<number | null>(null);
-
   const mockProjects = [
     {
       id: 1,
@@ -32,21 +30,15 @@ const Dashboard: React.FC = () => {
     },
   ];
 
-  const handleToggle = (id: number) => {
-    setExpandedId((prev) => (prev === id ? null : id));
-  };
-
   return (
     <AnimatedWrapper>
       <DashboardLayout title="Dashboard">
         <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">
           Your Projects
         </h2>
-        <DashboardCards
-          projects={mockProjects}
-          expandedId={expandedId}
-          onToggle={handleToggle}
-        />
+
+        {/* Only pass projects now, no expandedId or onToggle */}
+        <DashboardCards projects={mockProjects} />
       </DashboardLayout>
     </AnimatedWrapper>
   );
