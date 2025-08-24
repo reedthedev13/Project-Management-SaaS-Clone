@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, ChangeEvent } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import AnimatedWrapper from "../components/AnimatedWrapper";
 
@@ -9,28 +9,17 @@ const Login: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const apiLogin = async (email: string, password: string) => {
-    const res = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
-    if (!res.ok) {
-      const data = await res.json();
-      throw new Error(data.message || "Login failed");
-    }
-    return res.json();
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
+
     try {
-      const data = await apiLogin(email, password);
-      login(data.user, data.token);
+      await login(email, password); // ✅ Context handles API, token, user
+      // Optional: redirect to dashboard here
     } catch (err: any) {
-      setError(err.message || "Login failed");
+      console.error("Login error caught:", err);
+      setError(err.response?.data?.message || err.message || "Login failed");
     } finally {
       setLoading(false);
     }
@@ -56,7 +45,9 @@ const Login: React.FC = () => {
                 type="email"
                 placeholder="you@example.com"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  setEmail(e.target.value)
+                }
                 required
                 autoComplete="email"
                 className="w-full px-6 py-4 border border-gray-300 rounded-xl
@@ -78,7 +69,9 @@ const Login: React.FC = () => {
                 type="password"
                 placeholder="********"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  setPassword(e.target.value)
+                }
                 required
                 autoComplete="current-password"
                 className="w-full px-6 py-4 border border-gray-300 rounded-xl

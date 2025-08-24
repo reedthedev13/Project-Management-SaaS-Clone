@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import type { JSX } from "react";
 import {
   BrowserRouter as Router,
@@ -13,29 +13,23 @@ import LandingPage from "./pages/LandindPage";
 import AnimatedWrapper from "./components/AnimatedWrapper";
 
 const PrivateRoute: React.FC<{ children: JSX.Element }> = ({ children }) => {
-  // const { user } = useAuth();
+  const { user, loading } = useAuth();
 
-  // Optional: show nothing or a spinner while auth state is loading
-  // if (user === undefined) return null; // temporary comment out to allow easy access to other components
+  if (loading) return <div>Loading...</div>;
 
-  /* if (!user) {
-    return <Navigate to="/auth" replace />;
-  }
-*/
+  if (!user) return <Navigate to="/auth" replace />;
+
   return children;
 };
 
-const RequireAuthRedirect: React.FC = () => {
-  const { user } = useAuth();
+const PublicRoute: React.FC<{ children: JSX.Element }> = ({ children }) => {
+  const { user, loading } = useAuth();
 
-  // Optional: wait while loading auth state
-  if (user === undefined) return null;
+  if (loading) return <div>Loading...</div>;
 
-  if (user) {
-    return <Navigate to="/dashboard" replace />;
-  } else {
-    return <Navigate to="/auth" replace />;
-  }
+  if (user) return <Navigate to="/dashboard" replace />;
+
+  return children;
 };
 
 const App: React.FC = () => {
@@ -48,7 +42,14 @@ const App: React.FC = () => {
             <Route path="/" element={<LandingPage />} />
 
             {/* Auth routes */}
-            <Route path="/auth" element={<AuthPage />} />
+            <Route
+              path="/auth"
+              element={
+                <PublicRoute>
+                  <AuthPage />
+                </PublicRoute>
+              }
+            />
 
             {/* Protected dashboard */}
             <Route
@@ -60,7 +61,7 @@ const App: React.FC = () => {
               }
             />
 
-            {/* Redirect any unknown route to landing or 404 */}
+            {/* Redirect unknown routes */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Router>

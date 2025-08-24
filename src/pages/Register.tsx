@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, ChangeEvent } from "react";
 import Input from "../components/Input";
 import Button from "../components/Button";
 import { useAuth } from "../contexts/AuthContext";
 import AnimatedWrapper from "../components/AnimatedWrapper";
 
 const Register: React.FC = () => {
-  const { login } = useAuth();
+  const { register } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -29,29 +29,18 @@ const Register: React.FC = () => {
       newErrors.password = "Password must be at least 6 characters";
 
     setErrors(newErrors);
-
     if (Object.keys(newErrors).length !== 0) return;
 
     setLoading(true);
 
     try {
-      const res = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
-      });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.message || "Registration failed");
-      }
-
-      const data = await res.json(); // expecting { user, token }
-
-      login(data.user, data.token); // update auth context to logged in
-      // Optionally redirect to dashboard here
+      await register(email, password, name); // ✅ Context handles API, token, user
+      // Optional: redirect to dashboard here
     } catch (err: any) {
-      setApiError(err.message || "Registration failed");
+      console.error("Registration error caught:", err);
+      setApiError(
+        err.response?.data?.message || err.message || "Registration failed"
+      );
     } finally {
       setLoading(false);
     }
@@ -65,86 +54,56 @@ const Register: React.FC = () => {
             Create Account
           </h1>
           <form onSubmit={handleSubmit} noValidate className="space-y-7">
-            <div>
-              <label
-                htmlFor="name"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Name
-              </label>
-              <input
-                id="name"
-                type="text"
-                placeholder="Your full name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                className="w-full px-5 py-3 border border-gray-300 rounded-lg
-                         text-gray-900 placeholder-gray-400
-                         focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:border-indigo-500
-                         transition duration-300"
-                autoComplete="name"
-              />
-              {errors.name && (
-                <p className="mt-1 text-sm text-red-600 font-semibold">
-                  {errors.name}
-                </p>
-              )}
-            </div>
+            <Input
+              id="name"
+              label="Name"
+              type="text"
+              placeholder="Your full name"
+              value={name}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                setName(e.target.value)
+              }
+              required
+            />
+            {errors.name && (
+              <p className="mt-1 text-sm text-red-600 font-semibold">
+                {errors.name}
+              </p>
+            )}
 
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Email Address
-              </label>
-              <input
-                id="email"
-                type="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full px-5 py-3 border border-gray-300 rounded-lg
-                         text-gray-900 placeholder-gray-400
-                         focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:border-indigo-500
-                         transition duration-300"
-                autoComplete="email"
-              />
-              {errors.email && (
-                <p className="mt-1 text-sm text-red-600 font-semibold">
-                  {errors.email}
-                </p>
-              )}
-            </div>
+            <Input
+              id="email"
+              label="Email Address"
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                setEmail(e.target.value)
+              }
+              required
+            />
+            {errors.email && (
+              <p className="mt-1 text-sm text-red-600 font-semibold">
+                {errors.email}
+              </p>
+            )}
 
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Password
-              </label>
-              <input
-                id="password"
-                type="password"
-                placeholder="********"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="w-full px-5 py-3 border border-gray-300 rounded-lg
-                         text-gray-900 placeholder-gray-400
-                         focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:border-indigo-500
-                         transition duration-300"
-                autoComplete="new-password"
-              />
-              {errors.password && (
-                <p className="mt-1 text-sm text-red-600 font-semibold">
-                  {errors.password}
-                </p>
-              )}
-            </div>
+            <Input
+              id="password"
+              label="Password"
+              type="password"
+              placeholder="********"
+              value={password}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                setPassword(e.target.value)
+              }
+              required
+            />
+            {errors.password && (
+              <p className="mt-1 text-sm text-red-600 font-semibold">
+                {errors.password}
+              </p>
+            )}
 
             {apiError && (
               <p
@@ -159,9 +118,9 @@ const Register: React.FC = () => {
               type="submit"
               disabled={loading}
               className="w-full py-3 bg-indigo-600 hover:bg-indigo-700
-                       disabled:opacity-50 disabled:cursor-not-allowed
-                       text-white font-semibold rounded-lg
-                       shadow-md hover:shadow-lg transition duration-300"
+                         disabled:opacity-50 disabled:cursor-not-allowed
+                         text-white font-semibold rounded-lg
+                         shadow-md hover:shadow-lg transition duration-300"
             >
               {loading ? "Creating Account..." : "Create Account"}
             </Button>

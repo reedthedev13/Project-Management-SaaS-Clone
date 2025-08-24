@@ -2,21 +2,25 @@ import api from "../api/api";
 
 export interface AuthUser {
   id: number;
+  name: string;
   email: string;
-  name?: string;
 }
 
-export interface AuthResponse {
-  token: string;
+interface AuthResponse {
   user: AuthUser;
+  token: string;
 }
 
 export const register = async (
+  name: string,
   email: string,
-  password: string,
-  name?: string
+  password: string
 ): Promise<AuthResponse> => {
-  const res = await api.post("/auth/register", { email, password, name });
+  const res = await api.post<AuthResponse>("/auth/register", {
+    name,
+    email,
+    password,
+  });
   return res.data;
 };
 
@@ -24,11 +28,11 @@ export const login = async (
   email: string,
   password: string
 ): Promise<AuthResponse> => {
-  const res = await api.post("/auth/login", { email, password });
+  const res = await api.post<AuthResponse>("/auth/login", { email, password });
   return res.data;
 };
 
 export const me = async (): Promise<AuthUser> => {
-  const res = await api.get("/auth/me");
+  const res = await api.get<AuthUser>("/auth/me");
   return res.data;
 };
