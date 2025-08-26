@@ -23,16 +23,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     let ignore = false;
 
-    (async () => {
+    const fetchUser = async () => {
       if (!token) {
         setUser(null);
         setLoading(false);
         return;
       }
+
       try {
         const u = await auth.me();
         if (!ignore) setUser(u);
-      } catch {
+      } catch (err) {
         localStorage.removeItem("token");
         if (!ignore) {
           setToken(null);
@@ -41,7 +42,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       } finally {
         if (!ignore) setLoading(false);
       }
-    })();
+    };
+
+    fetchUser();
 
     return () => {
       ignore = true;

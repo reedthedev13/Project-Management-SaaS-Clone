@@ -1,4 +1,5 @@
 import React, { useState, ChangeEvent } from "react";
+import { useNavigate } from "react-router-dom";
 import Input from "../components/Input";
 import Button from "../components/Button";
 import { useAuth } from "../contexts/AuthContext";
@@ -6,6 +7,7 @@ import AnimatedWrapper from "../components/AnimatedWrapper";
 
 const Register: React.FC = () => {
   const { register } = useAuth();
+  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -21,6 +23,7 @@ const Register: React.FC = () => {
     e.preventDefault();
     setApiError(null);
 
+    // --- Frontend validation ---
     const newErrors: typeof errors = {};
     if (!name.trim()) newErrors.name = "Name is required";
     if (!email.trim()) newErrors.email = "Email is required";
@@ -29,18 +32,36 @@ const Register: React.FC = () => {
       newErrors.password = "Password must be at least 6 characters";
 
     setErrors(newErrors);
-    if (Object.keys(newErrors).length !== 0) return;
+    if (Object.keys(newErrors).length > 0) return;
 
     setLoading(true);
+    setApiError(null);
 
     try {
-      await register(email, password, name); // ✅ Context handles API, token, user
-      // Optional: redirect to dashboard here
-    } catch (err: any) {
+      await register(email, password, name);
+      navigate("/dashboard", { replace: true });
+    } catch (err: unknown) {
       console.error("Registration error caught:", err);
-      setApiError(
-        err.response?.data?.message || err.message || "Registration failed"
-      );
+
+      let message = "Registration failed. Please try again.";
+      const anyErr = err as any;
+      const serverMessage =
+        anyErr?.response?.data?.error ||
+        anyErr?.response?.data?.message ||
+        (Array.isArray(anyErr?.response?.data?.errors)
+          ? anyErr.response.data.errors.join(", ")
+          : undefined);
+
+      if (serverMessage) message = serverMessage;
+
+      const lower = message.toLowerCase();
+      if (lower.includes("unique") || lower.includes("already")) {
+        message = "This email is already registered.";
+      } else if (lower.includes("password")) {
+        message = "Password is invalid or does not meet requirements.";
+      }
+
+      setApiError(message);
     } finally {
       setLoading(false);
     }

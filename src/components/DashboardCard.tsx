@@ -1,14 +1,15 @@
+// src/components/DashboardCard.tsx
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 
-interface Task {
+export interface Task {
   id: number;
   title: string;
   completed: boolean;
 }
 
-interface Project {
+export interface Project {
   id: number;
   title: string;
   tasksCompleted: number;
@@ -18,14 +19,15 @@ interface Project {
 
 interface DashboardCardProps {
   project: Project;
+  children?: React.ReactNode; // optional children for buttons inside card
 }
 
-const DashboardCard: React.FC<DashboardCardProps> = ({ project }) => {
+const DashboardCard: React.FC<DashboardCardProps> = ({ project, children }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
     <motion.div
-      className="p-6 border rounded-lg shadow-sm bg-white dark:bg-gray-900 dark:border-gray-700"
+      className="p-6 border rounded-lg shadow-sm bg-white dark:bg-gray-900 dark:border-gray-700 flex flex-col"
       whileHover={{
         scale: 1.03,
         boxShadow: "0 12px 24px rgba(0,0,0,0.25)",
@@ -41,7 +43,6 @@ const DashboardCard: React.FC<DashboardCardProps> = ({ project }) => {
           {project.title}
         </h3>
 
-        {/* Rotating & Hoverable Chevron */}
         <motion.div
           animate={{ rotate: isExpanded ? 180 : 0 }}
           whileHover={{ scale: 1.2 }}
@@ -92,6 +93,9 @@ const DashboardCard: React.FC<DashboardCardProps> = ({ project }) => {
           </motion.ul>
         )}
       </AnimatePresence>
+
+      {/* Optional children (action buttons) */}
+      {children && <div className="mt-4">{children}</div>}
     </motion.div>
   );
 };

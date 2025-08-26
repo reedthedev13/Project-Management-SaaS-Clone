@@ -1,9 +1,13 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { useTheme } from "../contexts/ThemeContext";
+import { useAuth } from "../contexts/AuthContext"; // ✅ import Auth
+import { useNavigate } from "react-router-dom"; // ✅ import navigate
 
 const Sidebar: React.FC = () => {
   const { darkMode } = useTheme();
+  const { logout, user } = useAuth(); // ✅ get logout and user
+  const navigate = useNavigate();
 
   // Motion variants
   const sidebarVariants = {
@@ -16,6 +20,11 @@ const Sidebar: React.FC = () => {
   };
 
   const navItems = ["Dashboard", "Projects", "Tasks", "Calendar", "Settings"];
+
+  const handleLogout = () => {
+    logout(); // clears token and user
+    navigate("/login"); // redirects to login page
+  };
 
   return (
     <motion.aside
@@ -36,10 +45,10 @@ const Sidebar: React.FC = () => {
         </h2>
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold">
-            JD
+            {user?.name?.[0] || "U"}
           </div>
           <span className="font-semibold text-gray-700 dark:text-gray-300">
-            John Doe
+            {user?.name || "User"}
           </span>
         </div>
       </div>
@@ -61,6 +70,7 @@ const Sidebar: React.FC = () => {
 
       {/* Logout Button */}
       <motion.button
+        onClick={handleLogout} // ✅ connect logout
         className="mt-auto text-red-600 hover:text-red-800 dark:text-red-500 dark:hover:text-red-400 font-semibold transition-colors duration-200"
         whileHover={{ scale: 1.05 }}
       >

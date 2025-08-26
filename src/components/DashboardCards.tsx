@@ -1,19 +1,6 @@
+// src/components/DashboardCards.tsx
 import React from "react";
-import DashboardCard from "./DashboardCard";
-
-interface Task {
-  id: number;
-  title: string;
-  completed: boolean;
-}
-
-interface Project {
-  id: number;
-  title: string;
-  tasksCompleted: number;
-  tasksTotal: number;
-  tasks: Task[];
-}
+import DashboardCard, { Project } from "./DashboardCard";
 
 interface DashboardCardsProps {
   projects: Project[];
