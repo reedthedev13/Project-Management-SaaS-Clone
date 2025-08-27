@@ -1,4 +1,3 @@
-// src/components/DashboardCards.tsx
 import React from "react";
 import DashboardCard, { Project } from "./DashboardCard";
 
