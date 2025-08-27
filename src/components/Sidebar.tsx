@@ -1,15 +1,14 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { useTheme } from "../contexts/ThemeContext";
-import { useAuth } from "../contexts/AuthContext"; // ✅ import Auth
-import { useNavigate } from "react-router-dom"; // ✅ import navigate
+import { useAuth } from "../contexts/AuthContext";
+import { NavLink, useNavigate } from "react-router-dom";
 
 const Sidebar: React.FC = () => {
   const { darkMode } = useTheme();
-  const { logout, user } = useAuth(); // ✅ get logout and user
+  const { logout, user } = useAuth();
   const navigate = useNavigate();
 
-  // Motion variants
   const sidebarVariants = {
     hidden: { x: -50, opacity: 0 },
     visible: { x: 0, opacity: 1, transition: { duration: 0.4 } },
@@ -19,11 +18,18 @@ const Sidebar: React.FC = () => {
     hover: { scale: 1.05 },
   };
 
-  const navItems = ["Dashboard", "Projects", "Tasks", "Calendar", "Settings"];
+  // Nav items and routes
+  const navItems: { name: string; path: string }[] = [
+    { name: "Dashboard", path: "/dashboard" },
+    { name: "Projects", path: "/projects" },
+    { name: "Tasks", path: "/tasks" },
+    { name: "Calendar", path: "/calendar" },
+    { name: "Settings", path: "/settings" },
+  ];
 
   const handleLogout = () => {
-    logout(); // clears token and user
-    navigate("/login"); // redirects to login page
+    logout();
+    navigate("/login");
   };
 
   return (
@@ -56,21 +62,28 @@ const Sidebar: React.FC = () => {
       {/* Navigation */}
       <nav className="flex flex-col space-y-4 flex-1">
         {navItems.map((item) => (
-          <motion.a
-            key={item}
-            href="#"
-            className="text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium transition-colors duration-200"
-            whileHover="hover"
-            variants={linkVariants}
+          <NavLink
+            key={item.name}
+            to={item.path}
+            className={({ isActive }) =>
+              `flex items-center px-3 py-2 rounded-md font-medium transition-colors duration-200
+               ${
+                 isActive
+                   ? "bg-indigo-100 dark:bg-indigo-800 text-indigo-600 dark:text-indigo-400"
+                   : "text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400"
+               }`
+            }
           >
-            {item}
-          </motion.a>
+            <motion.span whileHover="hover" variants={linkVariants}>
+              {item.name}
+            </motion.span>
+          </NavLink>
         ))}
       </nav>
 
       {/* Logout Button */}
       <motion.button
-        onClick={handleLogout} // ✅ connect logout
+        onClick={handleLogout}
         className="mt-auto text-red-600 hover:text-red-800 dark:text-red-500 dark:hover:text-red-400 font-semibold transition-colors duration-200"
         whileHover={{ scale: 1.05 }}
       >

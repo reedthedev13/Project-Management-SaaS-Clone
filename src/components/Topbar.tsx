@@ -18,7 +18,7 @@ const Topbar: React.FC<TopbarProps> = ({ title = "Dashboard" }) => {
     >
       {/* Page Title */}
       <h1 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
-        Dashboard
+        {title || "Dashboard"}
       </h1>
 
       {/* Right Section */}

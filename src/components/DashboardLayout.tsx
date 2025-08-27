@@ -1,6 +1,7 @@
-import React, { ReactNode, useContext } from "react";
-import Sidebar from "../components/Sidebar";
-import Topbar from "../components/Topbar";
+// src/components/DashboardLayout.tsx
+import React, { ReactNode } from "react";
+import Sidebar from "./Sidebar";
+import Topbar from "./Topbar";
 import { useTheme } from "../contexts/ThemeContext";
 
 interface DashboardLayoutProps {
@@ -12,14 +13,19 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   children,
   title,
 }) => {
-  const { darkMode, toggleTheme } = useTheme();
+  const { darkMode } = useTheme();
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Sidebar */}
       <Sidebar />
 
-      <div className="flex-1 flex flex-col bg-gray-50 dark:bg-gray-900">
+      {/* Main content */}
+      <div className="flex-1 flex flex-col">
+        {/* Topbar */}
         <Topbar title={title} />
+
+        {/* Page content */}
         <main className="flex-1 overflow-y-auto p-6">{children}</main>
       </div>
     </div>

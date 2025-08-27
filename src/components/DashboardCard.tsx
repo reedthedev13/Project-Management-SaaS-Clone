@@ -1,7 +1,7 @@
-// src/components/DashboardCard.tsx
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown } from "lucide-react";
+import { Edit2, Trash2 } from "lucide-react";
+import { apiRequest } from "../services/apiClient";
 
 export interface Task {
   id: number;
@@ -19,45 +19,110 @@ export interface Project {
 
 interface DashboardCardProps {
   project: Project;
-  children?: React.ReactNode; // optional children for buttons inside card
+  onUpdate?: (updated: Project) => void;
+  onDelete?: (id: number) => void;
+  onToggleTask?: (taskId: number) => void;
+  children?: React.ReactNode;
 }
 
-const DashboardCard: React.FC<DashboardCardProps> = ({ project, children }) => {
+const DashboardCard: React.FC<DashboardCardProps> = ({
+  project,
+  onUpdate,
+  onDelete,
+  onToggleTask,
+}) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [newTitle, setNewTitle] = useState(project.title);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  const handleRename = async () => {
+    if (!newTitle.trim()) return;
+    try {
+      await apiRequest(`/boards/${project.id}`, {
+        method: "PUT",
+        body: JSON.stringify({ title: newTitle }),
+      });
+      onUpdate?.({ ...project, title: newTitle });
+      setEditing(false);
+    } catch (err) {
+      console.error("Failed to rename project:", err);
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      await apiRequest(`/boards/${project.id}`, { method: "DELETE" });
+      onDelete?.(project.id);
+      setShowDeleteModal(false);
+    } catch (err) {
+      console.error("Failed to delete project:", err);
+    }
+  };
 
   return (
     <motion.div
       className="p-6 border rounded-lg shadow-sm bg-white dark:bg-gray-900 dark:border-gray-700 flex flex-col"
-      whileHover={{
-        scale: 1.03,
-        boxShadow: "0 12px 24px rgba(0,0,0,0.25)",
-      }}
+      whileHover={{ scale: 1.03, boxShadow: "0 12px 24px rgba(0,0,0,0.25)" }}
       transition={{ type: "spring", stiffness: 300, damping: 20 }}
     >
-      {/* Header */}
-      <div
-        className="flex justify-between items-center cursor-pointer"
+      {/* Project Title */}
+      <h3
+        className="font-semibold text-gray-900 dark:text-gray-100 cursor-pointer"
         onClick={() => setIsExpanded(!isExpanded)}
       >
-        <h3 className="font-semibold text-gray-900 dark:text-gray-100">
-          {project.title}
-        </h3>
+        <input
+          type="text"
+          value={newTitle || ""}
+          onChange={(e) => setNewTitle(e.target.value)}
+          className="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-green-400"
+        />
+      </h3>
 
-        <motion.div
-          animate={{ rotate: isExpanded ? 180 : 0 }}
-          whileHover={{ scale: 1.2 }}
-          transition={{ duration: 0.3, type: "spring", stiffness: 300 }}
-        >
-          <ChevronDown size={20} className="text-gray-600 dark:text-gray-300" />
-        </motion.div>
+      {/* Buttons under title */}
+      <div className="flex gap-2 mt-3 flex-wrap">
+        {editing ? (
+          <>
+            <button
+              onClick={handleRename}
+              className="flex items-center gap-1 bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded shadow-sm transition text-sm"
+            >
+              <Edit2 size={16} /> Save
+            </button>
+            <button
+              onClick={() => {
+                setEditing(false);
+                setNewTitle(project.title);
+              }}
+              className="bg-gray-300 hover:bg-gray-400 px-3 py-1 rounded shadow-sm transition text-sm"
+            >
+              Cancel
+            </button>
+          </>
+        ) : (
+          <>
+            <button
+              onClick={() => setEditing(true)}
+              className="flex items-center gap-1 bg-yellow-400 hover:bg-yellow-500 px-3 py-1 rounded shadow-sm transition text-sm"
+            >
+              <Edit2 size={16} /> Rename
+            </button>
+            <button
+              onClick={() => setShowDeleteModal(true)}
+              className="flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded shadow-sm transition text-sm"
+            >
+              <Trash2 size={16} /> Delete
+            </button>
+          </>
+        )}
       </div>
 
       {/* Progress */}
-      <div className="text-sm mt-2 text-gray-700 dark:text-gray-300">
+      <div className="text-sm text-gray-700 dark:text-gray-300 mt-2">
         {project.tasksCompleted}/{project.tasksTotal} tasks completed
       </div>
 
-      {/* Smooth Slide Dropdown */}
+      {/* Tasks list dropdown */}
       <AnimatePresence initial={false}>
         {isExpanded && (
           <motion.ul
@@ -85,7 +150,7 @@ const DashboardCard: React.FC<DashboardCardProps> = ({ project, children }) => {
                 <input
                   type="checkbox"
                   checked={task.completed}
-                  readOnly
+                  onChange={() => onToggleTask?.(task.id)}
                   className="accent-indigo-600 dark:accent-indigo-500"
                 />
               </li>
@@ -94,8 +159,30 @@ const DashboardCard: React.FC<DashboardCardProps> = ({ project, children }) => {
         )}
       </AnimatePresence>
 
-      {/* Optional children (action buttons) */}
-      {children && <div className="mt-4">{children}</div>}
+      {/* Delete modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-80">
+            <p className="mb-4 text-gray-900 dark:text-gray-100">
+              Are you sure you want to delete this project?
+            </p>
+            <div className="flex gap-2 justify-end">
+              <button
+                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded transition"
+                onClick={() => setShowDeleteModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded transition"
+                onClick={handleDelete}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </motion.div>
   );
 };
