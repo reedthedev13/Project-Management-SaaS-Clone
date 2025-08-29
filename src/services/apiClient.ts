@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost:5001/api"; // same as auth service
+const BASE_URL = "http://localhost:5001/api"; // backend API base URL
 
 export async function apiRequest<T>(
   endpoint: string,
@@ -30,3 +30,27 @@ export async function apiRequest<T>(
 
   return data as T;
 }
+
+// ----------------------
+// User Profile Endpoints
+// ----------------------
+export const getUserProfile = () =>
+  apiRequest<{ name: string; email: string }>("/users/me");
+
+export const updateUserProfile = (payload: { name: string; email: string }) =>
+  apiRequest("/users/me", { method: "PUT", body: JSON.stringify(payload) });
+
+export const deleteUserAccount = () =>
+  apiRequest("/users/me", { method: "DELETE" });
+
+// ----------------------
+// User Preferences Endpoints
+// ----------------------
+export const getUserPreferences = () =>
+  apiRequest<{ theme: "light" | "dark" }>("/users/preferences");
+
+export const updateUserPreferences = (payload: { theme: "light" | "dark" }) =>
+  apiRequest("/users/preferences", {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
