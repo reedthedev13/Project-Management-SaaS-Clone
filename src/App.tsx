@@ -162,7 +162,7 @@ const App: React.FC = () => {
               path="/calendar"
               element={
                 <PrivateRoute>
-                  <CalendarPage />
+                  <CalendarPage projects={projects} setProjects={setProjects} />
                 </PrivateRoute>
               }
             />
