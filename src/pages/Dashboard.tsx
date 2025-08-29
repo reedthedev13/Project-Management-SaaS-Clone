@@ -97,7 +97,6 @@ const Dashboard: React.FC<DashboardProps> = ({ projects, loading }) => {
               key={project.id}
               project={{
                 ...project,
-                // use tasksCompleted and tasksTotal from backend if available
                 tasksCompleted:
                   typeof project.tasksCompleted === "number"
                     ? project.tasksCompleted
@@ -107,6 +106,7 @@ const Dashboard: React.FC<DashboardProps> = ({ projects, loading }) => {
                     ? project.tasksTotal
                     : project.tasks.length,
               }}
+              readOnly={true} // ← Hide delete/rename buttons and disable task toggles
             />
           ))}
         </div>
