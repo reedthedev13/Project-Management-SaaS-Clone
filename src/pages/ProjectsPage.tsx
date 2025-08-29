@@ -3,7 +3,7 @@ import DashboardLayout from "../components/DashboardLayout";
 import DashboardCard, {
   Project as CardProject,
 } from "../components/DashboardCard";
-import { Project } from "../types";
+import { Project, Task } from "../types";
 
 interface ProjectsPageProps {
   projects: Project[];
@@ -18,22 +18,39 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({
 }) => {
   const [newTitle, setNewTitle] = useState("");
 
+  // ✅ Add Project with Token
   const addProject = async (title: string) => {
     if (!title.trim()) return;
+
     try {
-      const newProject = await fetch("/boards", {
+      const token = localStorage.getItem("token");
+      const res = await fetch("http://localhost:5001/api/boards", {
         method: "POST",
-        body: JSON.stringify({ title }),
-      }).then((res) => res.json());
-      setProjects((prev) => [
-        ...prev,
-        {
-          ...newProject,
-          tasks: [],
-          tasksCompleted: 0,
-          tasksTotal: 0,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : "",
         },
-      ]);
+        body: JSON.stringify({ title }),
+      });
+
+      if (!res.ok) {
+        console.error("Add project failed:", res.status);
+        return;
+      }
+
+      const newProject: Project = await res.json();
+
+      // Build consistent project object
+      const cardProject: CardProject = {
+        ...newProject,
+        tasks: newProject.tasks || [],
+        tasksCompleted: (newProject.tasks || []).filter(
+          (t: Task) => t.completed
+        ).length,
+        tasksTotal: (newProject.tasks || []).length,
+      };
+
+      setProjects((prev) => [...prev, cardProject]);
       setNewTitle("");
     } catch (err) {
       console.error("Failed to add project:", err);
@@ -51,6 +68,7 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({
   return (
     <DashboardLayout title="Projects">
       <div className="p-6">
+        {/* Add Project */}
         <div className="mb-6 flex gap-2">
           <input
             type="text"
@@ -68,13 +86,20 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({
           </button>
         </div>
 
+        {/* Projects List */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {projects.map((project) => {
+            if (!project.id) return null; // avoid broken items
+
             const cardProject: CardProject = {
               ...project,
-              tasksCompleted: project.tasks.filter((t) => t.completed).length,
-              tasksTotal: project.tasks.length,
+              tasks: project.tasks || [],
+              tasksCompleted: (project.tasks || []).filter(
+                (t: Task) => t.completed
+              ).length,
+              tasksTotal: (project.tasks || []).length,
             };
+
             return (
               <DashboardCard
                 key={project.id}

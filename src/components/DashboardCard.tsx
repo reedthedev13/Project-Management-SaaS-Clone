@@ -39,10 +39,17 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
   const handleRename = async () => {
     if (!newTitle.trim()) return;
     try {
+      const token = localStorage.getItem("token");
+
       await apiRequest(`/boards/${project.id}`, {
         method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : "",
+        },
         body: JSON.stringify({ title: newTitle }),
       });
+
       onUpdate?.({ ...project, title: newTitle });
       setEditing(false);
     } catch (err) {
@@ -52,7 +59,15 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
 
   const handleDelete = async () => {
     try {
-      await apiRequest(`/boards/${project.id}`, { method: "DELETE" });
+      const token = localStorage.getItem("token");
+
+      await apiRequest(`/boards/${project.id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: token ? `Bearer ${token}` : "",
+        },
+      });
+
       onDelete?.(project.id);
       setShowDeleteModal(false);
     } catch (err) {
@@ -71,12 +86,17 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
         className="font-semibold text-gray-900 dark:text-gray-100 cursor-pointer"
         onClick={() => setIsExpanded(!isExpanded)}
       >
-        <input
-          type="text"
-          value={newTitle || ""}
-          onChange={(e) => setNewTitle(e.target.value)}
-          className="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-green-400"
-        />
+        {editing ? (
+          <input
+            type="text"
+            value={newTitle || ""}
+            onChange={(e) => setNewTitle(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleRename()} // Rename on Enter
+            className="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-green-400"
+          />
+        ) : (
+          project.title
+        )}
       </h3>
 
       {/* Buttons under title */}
@@ -159,30 +179,44 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
         )}
       </AnimatePresence>
 
-      {/* Delete modal */}
-      {showDeleteModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-80">
-            <p className="mb-4 text-gray-900 dark:text-gray-100">
-              Are you sure you want to delete this project?
-            </p>
-            <div className="flex gap-2 justify-end">
-              <button
-                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded transition"
-                onClick={() => setShowDeleteModal(false)}
-              >
-                Cancel
-              </button>
-              <button
-                className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded transition"
-                onClick={handleDelete}
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Modal-style Delete Confirmation */}
+      <AnimatePresence>
+        {showDeleteModal && (
+          <motion.div
+            className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-80"
+              initial={{ scale: 0.8 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.8 }}
+              tabIndex={0} // Make focusable to listen for Enter
+              onKeyDown={(e) => e.key === "Enter" && handleDelete()} // Delete on Enter
+            >
+              <p className="mb-4 text-gray-900 dark:text-gray-100">
+                Are you sure you want to delete this project?
+              </p>
+              <div className="flex gap-2 justify-end">
+                <button
+                  className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded transition"
+                  onClick={() => setShowDeleteModal(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded transition"
+                  onClick={handleDelete}
+                >
+                  Delete
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };
