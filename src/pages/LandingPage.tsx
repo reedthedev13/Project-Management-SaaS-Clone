@@ -10,7 +10,7 @@ const LandingPage: React.FC = () => {
           Welcome to Reed's Project Management App
         </h1>
         <p className="text-lg max-w-xl mb-10 text-center">
-          Manage your projects, tasks, and team with ease.
+          Manage your projects & tasks efficiently with ease.
         </p>
         <div className="flex space-x-6">
           <Link
