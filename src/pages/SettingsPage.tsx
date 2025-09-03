@@ -14,6 +14,8 @@ const SettingsPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showSaveSuccess, setShowSaveSuccess] = useState(false); // new
+  const [showSaveError, setShowSaveError] = useState(false); // new
 
   const { darkMode, toggleTheme } = useTheme();
 
@@ -37,16 +39,17 @@ const SettingsPage: React.FC = () => {
       }
     };
     fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSaveProfile = async () => {
     try {
       await updateUserProfile({ name, email });
-      alert("Profile saved successfully!");
+      setShowSaveSuccess(true);
+      setTimeout(() => setShowSaveSuccess(false), 3000); // hide after 3s
     } catch (err) {
       console.error(err);
-      alert("Failed to save profile");
+      setShowSaveError(true);
+      setTimeout(() => setShowSaveError(false), 3000); // hide after 3s
     }
   };
 
@@ -63,42 +66,30 @@ const SettingsPage: React.FC = () => {
     try {
       await deleteUserAccount();
       localStorage.removeItem("token");
-      alert("Account deleted!");
       window.location.href = "/";
     } catch (err) {
       console.error(err);
-      alert("Failed to delete account");
-    } finally {
       setShowDeleteModal(false);
     }
   };
 
-  if (loading) {
+  if (loading)
     return (
       <DashboardLayout title="Settings">
         <div className="p-6 text-gray-500 dark:text-gray-400">Loading...</div>
       </DashboardLayout>
     );
-  }
 
   const sectionClass =
     "bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md transition-colors duration-300";
-
-  const labelClass = "text-gray-800 dark:text-gray-200 font-medium";
-
   const inputClass =
     "w-full border p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 dark:bg-gray-700 dark:text-gray-100";
-
-  const buttonClass = "px-4 py-2 rounded-lg transition font-medium";
-
   const primaryBtn =
-    buttonClass + " bg-indigo-500 hover:bg-indigo-600 text-white";
-
+    "px-4 py-2 rounded-lg transition font-medium bg-indigo-500 hover:bg-indigo-600 text-white";
   const secondaryBtn =
-    buttonClass +
-    " bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100";
-
-  const dangerBtn = buttonClass + " bg-red-500 hover:bg-red-600 text-white";
+    "px-4 py-2 rounded-lg transition font-medium bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100";
+  const dangerBtn =
+    "px-4 py-2 rounded-lg transition font-medium bg-red-500 hover:bg-red-600 text-white";
 
   return (
     <DashboardLayout title="Settings">
@@ -108,6 +99,19 @@ const SettingsPage: React.FC = () => {
           <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
             Profile
           </h3>
+
+          {/* Save Success/Error Toast */}
+          {showSaveSuccess && (
+            <div className="mb-4 p-2 rounded bg-green-500 text-white">
+              Profile saved successfully!
+            </div>
+          )}
+          {showSaveError && (
+            <div className="mb-4 p-2 rounded bg-red-500 text-white">
+              Failed to save profile.
+            </div>
+          )}
+
           <div className="space-y-4">
             <input
               type="text"
@@ -135,7 +139,9 @@ const SettingsPage: React.FC = () => {
             Preferences
           </h3>
           <div className="flex items-center gap-4 mb-4">
-            <label className={labelClass}>Dark Mode</label>
+            <label className="text-gray-800 dark:text-gray-200 font-medium">
+              Dark Mode
+            </label>
             <input
               type="checkbox"
               checked={darkMode}
@@ -145,7 +151,7 @@ const SettingsPage: React.FC = () => {
           </div>
         </section>
 
-        {/* Other Options */}
+        {/* Account Actions */}
         <section className={sectionClass + " space-y-4"}>
           <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
             Account Actions

@@ -1,3 +1,5 @@
+import { User } from "../contexts/UserContext";
+
 const BASE_URL = "http://localhost:5001/api"; // backend API base URL
 
 export async function apiRequest<T>(
@@ -34,14 +36,17 @@ export async function apiRequest<T>(
 // ----------------------
 // User Profile Endpoints
 // ----------------------
-export const getUserProfile = () =>
-  apiRequest<{ name: string; email: string }>("/users/me");
+export const getUserProfile = (): Promise<User> =>
+  apiRequest<User>("/users/me");
 
-export const updateUserProfile = (payload: { name: string; email: string }) =>
-  apiRequest("/users/me", { method: "PUT", body: JSON.stringify(payload) });
+export const updateUserProfile = (payload: Partial<User>) =>
+  apiRequest<User>("/users/me", {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
 
 export const deleteUserAccount = () =>
-  apiRequest("/users/me", { method: "DELETE" });
+  apiRequest<void>("/users/me", { method: "DELETE" });
 
 // ----------------------
 // User Preferences Endpoints

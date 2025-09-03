@@ -1,7 +1,8 @@
-import React, { useContext } from "react";
+import React from "react";
 import { motion } from "framer-motion";
-import { Bell, Search, User, Moon, Sun } from "lucide-react";
+import { User, Moon, Sun } from "lucide-react";
 import { useTheme } from "../contexts/ThemeContext";
+import { useNavigate } from "react-router-dom";
 
 interface TopbarProps {
   title?: string;
@@ -9,6 +10,8 @@ interface TopbarProps {
 
 const Topbar: React.FC<TopbarProps> = ({ title = "Dashboard" }) => {
   const { darkMode, toggleTheme } = useTheme();
+  const navigate = useNavigate();
+
   return (
     <motion.header
       initial={{ y: -50, opacity: 0 }}
@@ -35,13 +38,11 @@ const Topbar: React.FC<TopbarProps> = ({ title = "Dashboard" }) => {
           )}
         </button>
 
-        {/* Notifications */}
-        <button className="p-2 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200">
-          <Bell size={18} className="text-gray-600 dark:text-gray-300" />
-        </button>
-
-        {/* User */}
-        <button className="p-2 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200">
+        {/* User Button */}
+        <button
+          onClick={() => navigate("/settings")}
+          className="p-2 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200"
+        >
           <User size={18} className="text-gray-600 dark:text-gray-300" />
         </button>
       </div>

@@ -13,16 +13,25 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-export const ThemeProvider: React.FC<{ children: ReactNode }> = ({
+interface ThemeProviderProps {
+  children: ReactNode;
+  initialTheme?: "light" | "dark";
+}
+
+export const ThemeProvider: React.FC<ThemeProviderProps> = ({
   children,
+  initialTheme,
 }) => {
-  const [darkMode, setDarkMode] = useState(false);
+  // Initialize from backend if available, otherwise false
+  const [darkMode, setDarkMode] = useState(initialTheme === "dark");
 
   useEffect(() => {
-    // Load theme from localStorage
-    const saved = localStorage.getItem("darkMode");
-    if (saved) setDarkMode(saved === "true");
-  }, []);
+    // Only read localStorage if initialTheme not passed
+    if (!initialTheme) {
+      const saved = localStorage.getItem("darkMode");
+      if (saved) setDarkMode(saved === "true");
+    }
+  }, [initialTheme]);
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", darkMode);
@@ -38,7 +47,6 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({
   );
 };
 
-// custom hook
 export const useTheme = () => {
   const context = useContext(ThemeContext);
   if (!context) throw new Error("useTheme must be used within ThemeProvider");
