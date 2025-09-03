@@ -1,5 +1,7 @@
 import { createContext, useState, useContext, useEffect } from "react";
 import * as auth from "../services/auth";
+import { apiRequest } from "../services/apiClient";
+import { User } from "../contexts/UserContext";
 
 type AuthCtx = {
   token: string | null;
@@ -51,11 +53,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
   }, [token]);
 
-  const login = async (email: string, password: string) => {
-    const res = await auth.login(email, password);
-    localStorage.setItem("token", res.token);
-    setToken(res.token);
-    setUser(res.user);
+  const login = async (email: string, password: string): Promise<void> => {
+    try {
+      const data = await apiRequest<{ token: string; user: User }>(
+        "/auth/login",
+        {
+          method: "POST",
+          body: JSON.stringify({ email, password }),
+        }
+      );
+
+      setToken(data.token);
+      setUser(data.user);
+      localStorage.setItem("token", data.token);
+    } catch (err: any) {
+      console.error("Login error:", err);
+      throw new Error(err?.message || "Login failed");
+    }
   };
 
   const register = async (name: string, email: string, password: string) => {
