@@ -1,6 +1,5 @@
 import { User } from "../contexts/UserContext";
 
-// Use environment variable or fallback to localhost
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5001/api";
 
 export async function apiRequest<T>(
