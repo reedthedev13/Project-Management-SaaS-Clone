@@ -33,3 +33,30 @@ export async function apiRequest<T>(
 
   return data as T;
 }
+
+// ----------------------
+// User Profile Endpoints
+// ----------------------
+export const getUserProfile = (): Promise<User> =>
+  apiRequest<User>("/users/me");
+
+export const updateUserProfile = (payload: Partial<User>) =>
+  apiRequest<User>("/users/me", {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+
+export const deleteUserAccount = () =>
+  apiRequest<void>("/users/me", { method: "DELETE" });
+
+// ----------------------
+// User Preferences Endpoints
+// ----------------------
+export const getUserPreferences = () =>
+  apiRequest<{ theme: "light" | "dark" }>("/users/preferences");
+
+export const updateUserPreferences = (payload: { theme: "light" | "dark" }) =>
+  apiRequest("/users/preferences", {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
