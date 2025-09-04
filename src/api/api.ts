@@ -1,8 +1,8 @@
 import axios from "axios";
 
-// Base URL from environment variable or fallback to localhost
+// Use optional chaining to safely access VITE_API_URL
 const API_BASE_URL =
-  import.meta.env.VITE_API_URL || "http://localhost:5001/api";
+  import.meta?.env?.VITE_API_URL ?? "http://localhost:5001/api";
 
 console.log("API_BASE_URL:", API_BASE_URL);
 
@@ -13,7 +13,6 @@ const api = axios.create({
   },
 });
 
-// Automatically attach auth token if exists
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token && config.headers) {
