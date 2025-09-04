@@ -1,6 +1,8 @@
 import { User } from "../contexts/UserContext";
 
-const BASE_URL = "http://localhost:5001/api"; // backend API base URL
+const BASE_URL =
+  import.meta.env?.VITE_API_URL ??
+  "https://project-management-saas-backend-azpf.onrender.com/api";
 
 export async function apiRequest<T>(
   endpoint: string,
