@@ -115,16 +115,16 @@ const TasksPage: React.FC<TasksPageProps> = ({
 
   return (
     <DashboardLayout title="Tasks">
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         {/* Project Selector */}
-        <div className="mb-4 flex gap-2 items-center">
+        <div className="mb-4 flex flex-col sm:flex-row sm:items-center gap-2">
           <label className="text-gray-700 dark:text-gray-300 font-medium">
             Select Project:
           </label>
           <select
             value={selectedProjectId || ""}
             onChange={(e) => setSelectedProjectId(Number(e.target.value))}
-            className="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full sm:w-auto"
           >
             {projects.map((p) => (
               <option key={p.id} value={p.id}>
@@ -135,18 +135,18 @@ const TasksPage: React.FC<TasksPageProps> = ({
         </div>
 
         {/* Add Task */}
-        <div className="mb-4 flex gap-2">
+        <div className="mb-4 flex flex-col sm:flex-row gap-2">
           <input
             type="text"
             placeholder="New task title"
             value={newTaskTitle ?? ""}
             onChange={(e) => setNewTaskTitle(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && addTask()}
-            className="border p-2 rounded flex-1 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="border p-2 sm:p-3 rounded flex-1 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full"
           />
           <button
             onClick={addTask}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition"
+            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition w-full sm:w-auto"
           >
             Add
           </button>
@@ -160,10 +160,10 @@ const TasksPage: React.FC<TasksPageProps> = ({
             {selectedProject.tasks.map((task) => (
               <li
                 key={task.id}
-                className="flex justify-between items-center p-2 rounded bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition"
+                className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center p-2 rounded bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition"
               >
                 <span
-                  className={`${
+                  className={`mb-2 sm:mb-0 ${
                     task.completed
                       ? "line-through text-gray-400 dark:text-gray-500"
                       : "text-gray-900 dark:text-gray-100"
@@ -174,14 +174,14 @@ const TasksPage: React.FC<TasksPageProps> = ({
                       type="text"
                       value={editingTaskTitle}
                       onChange={(e) => setEditingTaskTitle(e.target.value)}
-                      className="border p-1 rounded focus:outline-none focus:ring-2 focus:ring-green-400"
+                      className="border p-1 rounded focus:outline-none focus:ring-2 focus:ring-green-400 w-full sm:w-auto"
                     />
                   ) : (
                     task.title
                   )}
                 </span>
 
-                <div className="flex gap-2 items-center">
+                <div className="flex flex-wrap gap-2 items-center">
                   <input
                     type="checkbox"
                     checked={task.completed}

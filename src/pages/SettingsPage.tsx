@@ -93,7 +93,7 @@ const SettingsPage: React.FC = () => {
 
   return (
     <DashboardLayout title="Settings">
-      <div className="p-6 space-y-8">
+      <div className="p-4 sm:p-6 space-y-6 sm:space-y-8">
         {/* Profile */}
         <section className={sectionClass}>
           <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
@@ -112,7 +112,7 @@ const SettingsPage: React.FC = () => {
             </div>
           )}
 
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             <input
               type="text"
               value={name}
@@ -138,7 +138,7 @@ const SettingsPage: React.FC = () => {
           <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
             Preferences
           </h3>
-          <div className="flex items-center gap-4 mb-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 mb-4">
             <label className="text-gray-800 dark:text-gray-200 font-medium">
               Dark Mode
             </label>
@@ -176,7 +176,7 @@ const SettingsPage: React.FC = () => {
         {/* Delete Modal */}
         {showDeleteModal && (
           <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg w-80">
+            <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-lg w-72 sm:w-80">
               <p className="text-gray-900 dark:text-gray-100 mb-4">
                 Are you sure you want to delete your account? This action is
                 irreversible.

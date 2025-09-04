@@ -44,29 +44,24 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ projects }) => {
 
   return (
     <DashboardLayout title="Calendar">
-      <div className="p-6 max-w-4xl mx-auto">
+      <div className="p-4 sm:p-6 max-w-4xl mx-auto">
         {/* Calendar Card */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
             Select a Date
           </h2>
 
           <Calendar
             value={selectedDate}
-            onChange={(
-              value: Date | [Date | null, Date | null] | null,
-              event
-            ) => {
-              if (value instanceof Date) {
-                setSelectedDate(value);
-              }
+            onChange={(value: Date | [Date | null, Date | null] | null) => {
+              if (value instanceof Date) setSelectedDate(value);
             }}
-            className="react-calendar border-none w-full text-gray-900 dark:text-gray-100 rounded-lg shadow-sm dark:bg-gray-800 "
+            className="react-calendar border-none w-full max-w-full text-gray-900 dark:text-gray-100 rounded-lg shadow-sm dark:bg-gray-800"
           />
         </div>
 
         {/* Tasks for Selected Date */}
-        <div className="mt-6 bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
+        <div className="mt-4 sm:mt-6 bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">
             Tasks for{" "}
             <span className="font-normal">{selectedDate.toDateString()}</span>
@@ -81,7 +76,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ projects }) => {
               {tasksForSelectedDate.map((task) => (
                 <li
                   key={task.id}
-                  className="flex justify-between items-center p-3 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition"
+                  className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-3 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition"
                 >
                   <span
                     className={`${
@@ -92,7 +87,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ projects }) => {
                   >
                     {task.title}
                   </span>
-                  <span className="text-sm text-gray-500 dark:text-gray-400">
+                  <span className="text-sm text-gray-500 dark:text-gray-400 mt-1 sm:mt-0">
                     {task.projectTitle}
                   </span>
                 </li>

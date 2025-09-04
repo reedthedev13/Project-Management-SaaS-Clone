@@ -27,16 +27,21 @@ const Login: React.FC = () => {
 
   return (
     <AnimatedWrapper>
-      <div className="max-w-full min-h-screen flex items-center justify-center bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 px-12">
-        <div className="bg-white rounded-3xl shadow-lg mx-auto p-10 max-w-md w-full">
-          <h1 className="text-5xl font-extrabold text-center text-gray-900 mb-12 tracking-tight">
+      <div className="max-w-full min-h-screen flex items-center justify-center bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 px-4 sm:px-6 md:px-12">
+        <div className="bg-white rounded-2xl sm:rounded-3xl shadow-lg mx-auto p-6 sm:p-8 md:p-10 max-w-sm sm:max-w-md w-full">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-center text-gray-900 mb-8 sm:mb-10 md:mb-12 tracking-tight">
             Welcome Back
           </h1>
-          <form onSubmit={handleSubmit} className="space-y-10">
+
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-6 sm:space-y-8 md:space-y-10"
+          >
+            {/* Email */}
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700 mb-3"
+                className="block text-sm font-medium text-gray-700 mb-2 sm:mb-3"
               >
                 Email Address
               </label>
@@ -50,17 +55,18 @@ const Login: React.FC = () => {
                 }
                 required
                 autoComplete="email"
-                className="w-full px-6 py-4 border border-gray-300 rounded-xl
-                         text-gray-900 placeholder-gray-400
-                         focus:outline-none focus:ring-4 focus:ring-indigo-400 focus:border-indigo-400
-                         transition duration-300"
+                className="w-full px-4 sm:px-5 md:px-6 py-3 sm:py-4 border border-gray-300 rounded-lg sm:rounded-xl
+                     text-gray-900 placeholder-gray-400
+                     focus:outline-none focus:ring-2 sm:focus:ring-4 focus:ring-indigo-400 focus:border-indigo-400
+                     transition duration-300 text-sm sm:text-base"
               />
             </div>
 
+            {/* Password */}
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-700 mb-3"
+                className="block text-sm font-medium text-gray-700 mb-2 sm:mb-3"
               >
                 Password
               </label>
@@ -74,29 +80,31 @@ const Login: React.FC = () => {
                 }
                 required
                 autoComplete="current-password"
-                className="w-full px-6 py-4 border border-gray-300 rounded-xl
-                         text-gray-900 placeholder-gray-400
-                         focus:outline-none focus:ring-4 focus:ring-indigo-400 focus:border-indigo-400
-                         transition duration-300"
+                className="w-full px-4 sm:px-5 md:px-6 py-3 sm:py-4 border border-gray-300 rounded-lg sm:rounded-xl
+                     text-gray-900 placeholder-gray-400
+                     focus:outline-none focus:ring-2 sm:focus:ring-4 focus:ring-indigo-400 focus:border-indigo-400
+                     transition duration-300 text-sm sm:text-base"
               />
             </div>
 
+            {/* Error */}
             {error && (
               <p
-                className="text-sm text-red-600 text-center font-semibold"
+                className="text-xs sm:text-sm text-red-600 text-center font-semibold"
                 role="alert"
               >
                 {error}
               </p>
             )}
 
+            {/* Button */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-indigo-600 hover:bg-indigo-700
-                       disabled:opacity-50 disabled:cursor-not-allowed
-                       text-white font-semibold rounded-lg
-                       shadow-md hover:shadow-lg transition duration-300"
+              className="w-full py-2.5 sm:py-3 bg-indigo-600 hover:bg-indigo-700
+                   disabled:opacity-50 disabled:cursor-not-allowed
+                   text-white font-semibold rounded-lg sm:rounded-xl
+                   shadow-md hover:shadow-lg transition duration-300 text-sm sm:text-base"
             >
               {loading ? "Logging in..." : "Log in"}
             </button>

@@ -67,27 +67,27 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({
 
   return (
     <DashboardLayout title="Projects">
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         {/* Add Project */}
-        <div className="mb-6 flex gap-2">
+        <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row gap-2">
           <input
             type="text"
             placeholder="New project title"
             value={newTitle}
             onChange={(e) => setNewTitle(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && addProject(newTitle)}
-            className="border p-2 rounded flex-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="border p-2 sm:p-3 rounded flex-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
           <button
             onClick={() => addProject(newTitle)}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition"
+            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition w-full sm:w-auto"
           >
             Add
           </button>
         </div>
 
         {/* Projects List */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {projects.map((project) => {
             if (!project.id) return null; // avoid broken items
 
