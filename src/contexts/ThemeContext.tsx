@@ -22,17 +22,19 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
   children,
   initialTheme,
 }) => {
-  // Initialize from backend if available, otherwise false
-  const [darkMode, setDarkMode] = useState(initialTheme === "dark");
+  const [darkMode, setDarkMode] = useState<boolean>(() => {
+    // Load from localStorage first
+    const saved = localStorage.getItem("darkMode");
+    if (saved !== null) return saved === "true";
 
-  useEffect(() => {
-    // Only read localStorage if initialTheme not passed
-    if (!initialTheme) {
-      const saved = localStorage.getItem("darkMode");
-      if (saved) setDarkMode(saved === "true");
-    }
-  }, [initialTheme]);
+    // Fallback to backend preference
+    if (initialTheme) return initialTheme === "dark";
 
+    // Fallback to system preference
+    return window.matchMedia("(prefers-color-scheme: dark)").matches;
+  });
+
+  // Apply theme & persist in localStorage
   useEffect(() => {
     document.documentElement.classList.toggle("dark", darkMode);
     localStorage.setItem("darkMode", darkMode.toString());
