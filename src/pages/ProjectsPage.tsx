@@ -18,7 +18,7 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({
 }) => {
   const [newTitle, setNewTitle] = useState("");
 
-  // ✅ Add Project with Token
+  // ✅ Add Project
   const addProject = async (title: string) => {
     if (!title.trim()) return;
 
@@ -40,7 +40,6 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({
 
       const newProject: Project = await res.json();
 
-      // Build consistent project object
       const cardProject: CardProject = {
         ...newProject,
         tasks: newProject.tasks || [],
@@ -67,52 +66,62 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({
 
   return (
     <DashboardLayout title="Projects">
-      <div className="p-4 sm:p-6">
+      <div className="p-6 space-y-6">
         {/* Add Project */}
-        <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row gap-2">
+        <div className="flex flex-col sm:flex-row gap-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-lg shadow-sm hover:shadow-md transition">
           <input
             type="text"
-            placeholder="New project title"
+            placeholder="New project title..."
             value={newTitle}
             onChange={(e) => setNewTitle(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && addProject(newTitle)}
-            className="border p-2 sm:p-3 rounded flex-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="flex-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
           />
           <button
             onClick={() => addProject(newTitle)}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition w-full sm:w-auto"
+            className="bg-indigo-500 hover:bg-indigo-600 text-white px-5 py-2.5 rounded-lg font-medium shadow-sm hover:shadow-md transition w-full sm:w-auto"
           >
-            Add
+            Add Project
           </button>
         </div>
 
         {/* Projects List */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          {projects.map((project) => {
-            if (!project.id) return null; // avoid broken items
+        {projects.length === 0 ? (
+          <p className="text-gray-500 dark:text-gray-400 italic text-center py-10">
+            No projects yet — start by creating your first one above!
+          </p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {projects.map((project) => {
+              if (!project.id) return null;
 
-            const cardProject: CardProject = {
-              ...project,
-              tasks: project.tasks || [],
-              tasksCompleted: (project.tasks || []).filter(
-                (t: Task) => t.completed
-              ).length,
-              tasksTotal: (project.tasks || []).length,
-            };
+              const cardProject: CardProject = {
+                ...project,
+                tasks: project.tasks || [],
+                tasksCompleted: (project.tasks || []).filter(
+                  (t: Task) => t.completed
+                ).length,
+                tasksTotal: (project.tasks || []).length,
+              };
 
-            return (
-              <DashboardCard
-                key={project.id}
-                project={cardProject}
-                onUpdate={handleUpdateProject}
-                onDelete={handleDeleteProject}
-                onToggleTask={(taskId) =>
-                  toggleTaskCompletion(project.id, taskId)
-                }
-              />
-            );
-          })}
-        </div>
+              return (
+                <div
+                  key={project.id}
+                  className="transform transition hover:-translate-y-1 hover:shadow-lg"
+                >
+                  <DashboardCard
+                    project={cardProject}
+                    onUpdate={handleUpdateProject}
+                    onDelete={handleDeleteProject}
+                    onToggleTask={(taskId) =>
+                      toggleTaskCompletion(project.id, taskId)
+                    }
+                  />
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </DashboardLayout>
   );

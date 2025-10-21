@@ -52,72 +52,67 @@ const Dashboard: React.FC<DashboardProps> = ({ projects, loading }) => {
     <AnimatedWrapper>
       <DashboardLayout title="Dashboard">
         {/* Metrics */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-4 sm:mb-6">
-          <div className="p-3 sm:p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md">
-            <h3 className="text-gray-700 dark:text-gray-300 font-medium text-sm sm:text-base">
-              Total Projects
-            </h3>
-            <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
-              {totalProjects}
-            </p>
-          </div>
-          <div className="p-3 sm:p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md">
-            <h3 className="text-gray-700 dark:text-gray-300 font-medium text-sm sm:text-base">
-              Total Tasks
-            </h3>
-            <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
-              {totalTasks}
-            </p>
-          </div>
-          <div className="p-3 sm:p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md">
-            <h3 className="text-gray-700 dark:text-gray-300 font-medium text-sm sm:text-base">
-              Tasks Completed
-            </h3>
-            <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
-              {totalCompleted}
-            </p>
-          </div>
-          <div className="p-3 sm:p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md">
-            <h3 className="text-gray-700 dark:text-gray-300 font-medium text-sm sm:text-base">
-              Completion %
-            </h3>
-            <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
-              {totalTasks > 0
-                ? Math.round((totalCompleted / totalTasks) * 100)
-                : 0}
-              %
-            </p>
-          </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6">
+          {[
+            { label: "Total Projects", value: totalProjects },
+            { label: "Total Tasks", value: totalTasks },
+            { label: "Tasks Completed", value: totalCompleted },
+            {
+              label: "Completion %",
+              value:
+                totalTasks > 0
+                  ? Math.round((totalCompleted / totalTasks) * 100)
+                  : 0,
+              suffix: "%",
+            },
+          ].map((metric) => (
+            <div
+              key={metric.label}
+              className="p-4 bg-white dark:bg-gray-800 rounded-xl shadow hover:shadow-lg transition"
+            >
+              <h3 className="text-gray-700 dark:text-gray-300 font-medium text-sm sm:text-base">
+                {metric.label}
+              </h3>
+              <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">
+                {metric.value}
+                {metric.suffix || ""}
+              </p>
+            </div>
+          ))}
         </div>
 
         {/* Project Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-6">
           {projects.map((project) => (
-            <DashboardCard
+            <div
               key={project.id}
-              project={{
-                ...project,
-                tasksCompleted:
-                  typeof project.tasksCompleted === "number"
-                    ? project.tasksCompleted
-                    : project.tasks.filter((t) => t.completed).length,
-                tasksTotal:
-                  typeof project.tasksTotal === "number"
-                    ? project.tasksTotal
-                    : project.tasks.length,
-              }}
-              readOnly={true}
-            />
+              className="transform transition hover:-translate-y-1 hover:shadow-lg"
+            >
+              <DashboardCard
+                project={{
+                  ...project,
+                  tasksCompleted:
+                    typeof project.tasksCompleted === "number"
+                      ? project.tasksCompleted
+                      : project.tasks.filter((t) => t.completed).length,
+                  tasksTotal:
+                    typeof project.tasksTotal === "number"
+                      ? project.tasksTotal
+                      : project.tasks.length,
+                }}
+                readOnly={true}
+              />
+            </div>
           ))}
         </div>
 
         {/* Recent Activity */}
-        <div className="bg-white dark:bg-gray-800 p-3 sm:p-4 rounded-lg shadow-md">
-          <h3 className="text-gray-700 dark:text-gray-300 font-semibold mb-2 text-sm sm:text-base">
+        <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow hover:shadow-lg transition">
+          <h3 className="text-gray-700 dark:text-gray-300 font-semibold mb-3 text-sm sm:text-base">
             Recent Tasks
           </h3>
           {recentTasks.length === 0 ? (
-            <p className="text-gray-500 dark:text-gray-400 text-sm sm:text-base">
+            <p className="text-gray-500 dark:text-gray-400 italic text-sm sm:text-base">
               No recent tasks.
             </p>
           ) : (
@@ -125,7 +120,7 @@ const Dashboard: React.FC<DashboardProps> = ({ projects, loading }) => {
               {recentTasks.map((task) => (
                 <li
                   key={task.id}
-                  className="flex justify-between items-center p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                  className="flex justify-between items-center p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition"
                 >
                   <span className="text-gray-900 dark:text-gray-100 text-sm sm:text-base">
                     {task.title}

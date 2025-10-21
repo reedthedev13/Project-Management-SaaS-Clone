@@ -152,25 +152,41 @@ const SettingsPage: React.FC = () => {
         </section>
 
         {/* Account Actions */}
-        <section className={sectionClass + " space-y-4"}>
-          <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
+        <section
+          className={`${sectionClass} space-y-4 flex flex-col sm:flex-row sm:items-center sm:justify-between`}
+        >
+          <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
             Account Actions
           </h3>
-          <button
-            onClick={() => {
-              localStorage.removeItem("token");
-              window.location.href = "/";
-            }}
-            className={secondaryBtn}
-          >
-            Log Out
-          </button>
-          <button
-            onClick={() => setShowDeleteModal(true)}
-            className={dangerBtn}
-          >
-            Delete Account
-          </button>
+
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            {/* Log Out Button */}
+            <button
+              onClick={() => {
+                localStorage.removeItem("token");
+                window.location.href = "/";
+              }}
+              className="flex-1 sm:flex-none px-5 py-2.5 rounded-lg font-medium
+      bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 
+      hover:from-gray-200 hover:to-gray-300 
+      dark:from-gray-700 dark:to-gray-800 dark:text-gray-100
+      dark:hover:from-gray-600 dark:hover:to-gray-700
+      transition-all duration-200 shadow-sm hover:shadow-md"
+            >
+              Log Out
+            </button>
+
+            {/* Delete Account Button */}
+            <button
+              onClick={() => setShowDeleteModal(true)}
+              className="flex-1 sm:flex-none px-5 py-2.5 rounded-lg font-medium
+      bg-gradient-to-r from-red-500 to-red-600 text-white 
+      hover:from-red-600 hover:to-red-700 
+      transition-all duration-200 shadow-sm hover:shadow-md"
+            >
+              Delete Account
+            </button>
+          </div>
         </section>
 
         {/* Delete Modal */}
