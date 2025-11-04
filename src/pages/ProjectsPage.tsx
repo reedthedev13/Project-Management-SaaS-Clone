@@ -4,6 +4,7 @@ import DashboardCard, {
   Project as CardProject,
 } from "../components/DashboardCard";
 import { Project, Task } from "../types";
+import { apiRequest } from "../api/apiClient";
 
 interface ProjectsPageProps {
   projects: Project[];
@@ -17,28 +18,18 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({
   toggleTaskCompletion,
 }) => {
   const [newTitle, setNewTitle] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  // ✅ Add Project
+  // Add Project
   const addProject = async (title: string) => {
     if (!title.trim()) return;
+    setLoading(true);
 
     try {
-      const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5001/api/boards", {
+      const newProject: Project = await apiRequest("/boards", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token ? `Bearer ${token}` : "",
-        },
         body: JSON.stringify({ title }),
       });
-
-      if (!res.ok) {
-        console.error("Add project failed:", res.status);
-        return;
-      }
-
-      const newProject: Project = await res.json();
 
       const cardProject: CardProject = {
         ...newProject,
@@ -52,7 +43,10 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({
       setProjects((prev) => [...prev, cardProject]);
       setNewTitle("");
     } catch (err) {
-      console.error("Failed to add project:", err);
+      console.error("Add project failed:", err);
+      alert("Failed to add project. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -79,9 +73,10 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({
           />
           <button
             onClick={() => addProject(newTitle)}
-            className="bg-indigo-500 hover:bg-indigo-600 text-white px-5 py-2.5 rounded-lg font-medium shadow-sm hover:shadow-md transition w-full sm:w-auto"
+            disabled={loading}
+            className="bg-indigo-500 hover:bg-indigo-600 text-white px-5 py-2.5 rounded-lg font-medium shadow-sm hover:shadow-md transition w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Add Project
+            {loading ? "Adding..." : "Add Project"}
           </button>
         </div>
 
