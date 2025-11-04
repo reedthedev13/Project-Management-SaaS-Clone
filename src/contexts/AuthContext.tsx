@@ -25,6 +25,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     let ignore = false;
 
     const fetchUser = async () => {
+      const token = localStorage.getItem("token");
       if (!token) {
         setUser(null);
         setLoading(false);
@@ -32,14 +33,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       try {
-        const u = await auth.me();
+        const u = await auth.me(); // fetch user with token
         if (!ignore) setUser(u);
       } catch (err: any) {
-        // Token is missing, expired, or backend rejects it
-        console.warn("Token invalid or expired. Logging out...");
+        // Token is invalid or expired
+        console.warn("Token invalid/expired, logging out.");
         localStorage.removeItem("token");
         if (!ignore) {
-          setToken(null);
           setUser(null);
         }
       } finally {
@@ -51,7 +51,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => {
       ignore = true;
     };
-  }, [token]);
+  }, []);
 
   const login = async (email: string, password: string) => {
     try {
