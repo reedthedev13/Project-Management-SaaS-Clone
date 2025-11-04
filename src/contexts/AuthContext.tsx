@@ -1,11 +1,10 @@
 import { createContext, useState, useContext, useEffect } from "react";
-import * as auth from "../services/auth";
-import { apiRequest } from "../services/apiClient";
+import * as auth from "../services/auth"; // login/register/me
 import { User } from "../contexts/UserContext";
 
 type AuthCtx = {
   token: string | null;
-  user: auth.AuthUser | null;
+  user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
@@ -18,7 +17,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [token, setToken] = useState<string | null>(
     localStorage.getItem("token")
   );
-  const [user, setUser] = useState<auth.AuthUser | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   // Hydrate user from token
@@ -33,9 +32,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       try {
-        const u = await auth.me();
+        const u = await auth.me(); // Uses token in axios instance
         if (!ignore) setUser(u);
       } catch (err) {
+        console.warn("Token invalid or expired, logging out.");
         localStorage.removeItem("token");
         if (!ignore) {
           setToken(null);
@@ -47,36 +47,33 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     fetchUser();
-
     return () => {
       ignore = true;
     };
   }, [token]);
 
-  const login = async (email: string, password: string): Promise<void> => {
+  const login = async (email: string, password: string) => {
     try {
-      const data = await apiRequest<{ token: string; user: User }>(
-        "/auth/login",
-        {
-          method: "POST",
-          body: JSON.stringify({ email, password }),
-        }
-      );
-
-      setToken(data.token);
-      setUser(data.user);
-      localStorage.setItem("token", data.token);
+      const res = await auth.login(email, password); // returns { token, user }
+      setToken(res.token);
+      setUser(res.user);
+      localStorage.setItem("token", res.token);
     } catch (err: any) {
-      console.error("Login error:", err);
+      console.error("Login failed:", err);
       throw new Error(err?.message || "Login failed");
     }
   };
 
   const register = async (name: string, email: string, password: string) => {
-    const res = await auth.register(name, email, password);
-    localStorage.setItem("token", res.token);
-    setToken(res.token);
-    setUser(res.user);
+    try {
+      const res = await auth.register(name, email, password); // returns { token, user }
+      setToken(res.token);
+      setUser(res.user);
+      localStorage.setItem("token", res.token);
+    } catch (err: any) {
+      console.error("Registration failed:", err);
+      throw new Error(err?.message || "Registration failed");
+    }
   };
 
   const logout = () => {

@@ -37,14 +37,16 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 };
 
 const App: React.FC = () => {
+  const { user, loading: authLoading } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loadingProjects, setLoadingProjects] = useState(true);
   const [initialTheme, setInitialTheme] = useState<"light" | "dark" | null>(
     null
   );
 
-  // Fetch backend theme preference
+  // Fetch backend theme preference only when user is logged in
   useEffect(() => {
+    if (!user) return;
     const fetchTheme = async () => {
       try {
         const prefs = await apiRequest<{ theme: "light" | "dark" }>(
@@ -57,10 +59,11 @@ const App: React.FC = () => {
       }
     };
     fetchTheme();
-  }, []);
+  }, [user]);
 
-  // Fetch projects
+  // Fetch projects only when user is logged in
   useEffect(() => {
+    if (!user) return;
     const fetchProjects = async () => {
       try {
         const data = await apiRequest("/boards", { method: "GET" });
@@ -85,7 +88,7 @@ const App: React.FC = () => {
       }
     };
     fetchProjects();
-  }, []);
+  }, [user]);
 
   // Toggle task completion
   const toggleTaskCompletion = async (projectId: number, taskId: number) => {
@@ -124,17 +127,15 @@ const App: React.FC = () => {
     }
   };
 
-  // Wait until theme preference is loaded
-  if (!initialTheme) {
+  // Show loading screen until auth & theme are ready
+  if (authLoading || (!initialTheme && user)) {
     return (
-      <div className="p-6 text-gray-500 dark:text-gray-400">
-        Loading theme...
-      </div>
+      <div className="p-6 text-gray-500 dark:text-gray-400">Loading...</div>
     );
   }
 
   return (
-    <ThemeProvider initialTheme={initialTheme}>
+    <ThemeProvider initialTheme={initialTheme || "light"}>
       <AnimatedWrapper>
         <AuthProvider>
           <Router>
