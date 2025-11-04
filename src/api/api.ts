@@ -1,7 +1,11 @@
 import axios from "axios";
 
-// Original working local backend URL
-const API_BASE_URL = "http://localhost:5001/api";
+// Automatically switch between local and production backend
+const API_BASE_URL =
+  import.meta.env.MODE === "development"
+    ? "http://localhost:5001/api"
+    : "https://project-management-saas-backend-1.onrender.com";
+
 console.log("API_BASE_URL:", API_BASE_URL);
 
 const api = axios.create({
