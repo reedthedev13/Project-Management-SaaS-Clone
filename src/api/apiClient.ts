@@ -3,10 +3,6 @@ import { User } from "../contexts/UserContext";
 const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5001/api";
 console.log("BASE_URL:", BASE_URL);
 
-/**
- * apiRequest automatically handles:
- * - 401 Unauthorized -> clears token and reloads page to force login
- */
 export async function apiRequest<T>(
   endpoint: string,
   options: RequestInit = {}
@@ -30,15 +26,6 @@ export async function apiRequest<T>(
   } catch {}
 
   if (!res.ok) {
-    // Automatically handle 401
-    if (res.status === 401) {
-      console.warn("Unauthorized. Clearing token and forcing login.");
-      localStorage.removeItem("token");
-      // Force reload so AuthContext kicks in
-      window.location.href = "/auth";
-      return {} as T; // never reached, but TS needs a return
-    }
-
     const message = data?.error || `Request failed: ${res.status}`;
     const details = data?.issues ? `: ${JSON.stringify(data.issues)}` : "";
     throw new Error(message + details);
