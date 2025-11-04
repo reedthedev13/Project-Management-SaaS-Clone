@@ -1,10 +1,7 @@
 import axios from "axios";
 
-const API_BASE_URL =
-  import.meta.env.MODE === "development"
-    ? "http://localhost:5001/api"
-    : "https://project-management-saas-backend-1.onrender.com/api";
-
+// Original working local backend URL
+const API_BASE_URL = "http://localhost:5001/api";
 console.log("API_BASE_URL:", API_BASE_URL);
 
 const api = axios.create({
@@ -14,6 +11,7 @@ const api = axios.create({
   },
 });
 
+// Attach token automatically if present
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token && config.headers) {
