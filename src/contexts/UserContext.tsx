@@ -5,7 +5,7 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
-import { getUserProfile } from "../services/apiClient";
+import { getUserProfile } from "../api/apiClient";
 
 export interface User {
   id: number;

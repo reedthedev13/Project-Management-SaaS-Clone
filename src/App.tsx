@@ -17,7 +17,7 @@ import TasksPage from "./pages/TasksPage";
 import CalendarPage from "./pages/CalendarPage";
 import SettingsPage from "./pages/SettingsPage";
 
-import { apiRequest } from "./services/apiClient";
+import { apiRequest } from "./api/apiClient";
 import { Project } from "./types";
 
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({

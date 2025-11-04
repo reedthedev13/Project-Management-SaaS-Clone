@@ -6,7 +6,7 @@ import {
   getUserPreferences,
   updateUserPreferences,
   deleteUserAccount,
-} from "../services/apiClient";
+} from "../api/apiClient";
 import { useTheme } from "../contexts/ThemeContext";
 
 const SettingsPage: React.FC = () => {

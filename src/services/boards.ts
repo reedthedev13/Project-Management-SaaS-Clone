@@ -1,4 +1,4 @@
-import { apiRequest } from "./apiClient";
+import { apiRequest } from "../api/apiClient";
 
 export type Board = { id: number; title: string; ownerId: number };
 

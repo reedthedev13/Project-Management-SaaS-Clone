@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Edit2, Trash2 } from "lucide-react";
-import { apiRequest } from "../services/apiClient";
+import { apiRequest } from "../api/apiClient";
 
 export interface Task {
   id: number;

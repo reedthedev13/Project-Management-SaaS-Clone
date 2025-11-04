@@ -1,7 +1,7 @@
 import { Edit2, Trash2 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import DashboardCard, { Project } from "./DashboardCard";
-import { apiRequest } from "../services/apiClient";
+import { apiRequest } from "../api/apiClient";
 
 export type Board = { id: number; title: string; ownerId: number };
 

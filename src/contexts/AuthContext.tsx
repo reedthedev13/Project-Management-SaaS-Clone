@@ -1,5 +1,5 @@
 import { createContext, useState, useContext, useEffect } from "react";
-import * as auth from "../services/auth"; // login/register/me
+import * as auth from "../services/auth";
 import { User } from "../contexts/UserContext";
 
 type AuthCtx = {
@@ -20,7 +20,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Hydrate user from token
+  // Hydrate user from token or force logout if invalid
   useEffect(() => {
     let ignore = false;
 
@@ -32,10 +32,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       try {
-        const u = await auth.me(); // Uses token in axios instance
+        const u = await auth.me();
         if (!ignore) setUser(u);
-      } catch (err) {
-        console.warn("Token invalid or expired, logging out.");
+      } catch (err: any) {
+        // Token is missing, expired, or backend rejects it
+        console.warn("Token invalid or expired. Logging out...");
         localStorage.removeItem("token");
         if (!ignore) {
           setToken(null);
@@ -60,6 +61,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       localStorage.setItem("token", res.token);
     } catch (err: any) {
       console.error("Login failed:", err);
+      // Clear any partial token
+      localStorage.removeItem("token");
+      setToken(null);
+      setUser(null);
       throw new Error(err?.message || "Login failed");
     }
   };
@@ -72,6 +77,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       localStorage.setItem("token", res.token);
     } catch (err: any) {
       console.error("Registration failed:", err);
+      // Clear any partial token
+      localStorage.removeItem("token");
+      setToken(null);
+      setUser(null);
       throw new Error(err?.message || "Registration failed");
     }
   };

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import DashboardLayout from "../components/DashboardLayout";
 import { Project, Task } from "../types";
-import { apiRequest } from "../services/apiClient";
+import { apiRequest } from "../api/apiClient";
 
 interface TasksPageProps {
   projects: Project[];
