@@ -1,7 +1,6 @@
 import { User } from "../contexts/UserContext";
 
-// Original working local backend URL
-const BASE_URL = "http://localhost:5001/api";
+const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5001/api";
 console.log("BASE_URL:", BASE_URL);
 
 export async function apiRequest<T>(
