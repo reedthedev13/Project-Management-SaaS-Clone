@@ -33,10 +33,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       try {
-        const u = await auth.me(); // fetch user with token
+        const u = await auth.me();
         if (!ignore) setUser(u);
-      } catch (err: any) {
-        // Token is invalid or expired
+      } catch (err) {
         console.warn("Token invalid/expired, logging out.");
         localStorage.removeItem("token");
         if (!ignore) {

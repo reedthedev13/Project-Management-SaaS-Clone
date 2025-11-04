@@ -26,9 +26,12 @@ export async function apiRequest<T>(
   } catch {}
 
   if (!res.ok) {
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      window.location.href = "/auth"; // force re-login
+    }
     const message = data?.error || `Request failed: ${res.status}`;
-    const details = data?.issues ? `: ${JSON.stringify(data.issues)}` : "";
-    throw new Error(message + details);
+    throw new Error(message);
   }
 
   return data as T;
