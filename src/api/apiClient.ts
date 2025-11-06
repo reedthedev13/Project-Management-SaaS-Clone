@@ -1,5 +1,4 @@
-import { User } from "../contexts/UserContext";
-
+// src/api/apiClient.ts
 const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5001/api";
 
 export async function apiRequest<T>(
@@ -25,35 +24,12 @@ export async function apiRequest<T>(
   } catch {}
 
   if (!res.ok) {
-    // Instead of redirecting here, just throw the error
     const message = data?.error || `Request failed: ${res.status}`;
     const details = data?.issues ? `: ${JSON.stringify(data.issues)}` : "";
     const err = new Error(message + details);
-    (err as any).status = res.status; // attach status for AuthContext
+    (err as any).status = res.status;
     throw err;
   }
 
   return data as T;
 }
-
-// User endpoints
-export const getUserProfile = (): Promise<User> =>
-  apiRequest<User>("/users/me");
-
-export const updateUserProfile = (payload: Partial<User>) =>
-  apiRequest<User>("/users/me", {
-    method: "PUT",
-    body: JSON.stringify(payload),
-  });
-
-export const deleteUserAccount = () =>
-  apiRequest<void>("/users/me", { method: "DELETE" });
-
-export const getUserPreferences = () =>
-  apiRequest<{ theme: "light" | "dark" }>("/users/preferences");
-
-export const updateUserPreferences = (payload: { theme: "light" | "dark" }) =>
-  apiRequest("/users/preferences", {
-    method: "PUT",
-    body: JSON.stringify(payload),
-  });
