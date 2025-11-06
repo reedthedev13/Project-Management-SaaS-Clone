@@ -15,8 +15,7 @@ const Login: React.FC = () => {
     setLoading(true);
 
     try {
-      await login(email, password); // ✅ Context handles API, token, user
-      // Optional: redirect to dashboard here
+      await login(email, password);
     } catch (err: any) {
       console.error("Login error caught:", err);
       setError(err.response?.data?.message || err.message || "Login failed");

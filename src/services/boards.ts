@@ -2,7 +2,7 @@ import { apiRequest } from "../api/apiClient";
 
 export type Board = { id: number; title: string; ownerId: number };
 
-const BASE_URL = "http://localhost:5001/api";
+const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5001/api";
 
 export const getBoards = () =>
   apiRequest<Board[]>(`${BASE_URL}/boards`, { method: "GET" });
