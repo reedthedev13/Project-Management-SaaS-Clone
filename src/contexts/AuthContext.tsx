@@ -31,10 +31,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Hydrate user from token on mount
+  // Load user from token on mount
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
+    const t = localStorage.getItem("token");
+    if (!t) {
       setUser(null);
       setLoading(false);
       return;
@@ -44,8 +44,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       try {
         const profile = await auth.me();
         setUser(profile);
-      } catch (err) {
-        console.warn("Token invalid/expired, logging out.");
+      } catch {
         localStorage.removeItem("token");
         setUser(null);
       } finally {
@@ -60,6 +59,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
     try {
       const res = await auth.login(email, password);
+      if (!res?.token) throw new Error("Invalid login response from server");
+
       localStorage.setItem("token", res.token);
       setToken(res.token);
 
@@ -67,10 +68,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(u);
     } catch (err: any) {
       console.error("Login failed:", err);
-      localStorage.removeItem("token");
-      setToken(null);
-      setUser(null);
-      throw err;
+
+      // Extract proper error message
+      let message =
+        err?.response?.data?.message ||
+        err?.response?.data?.error ||
+        err.message ||
+        "Invalid email or password";
+
+      // Normalize common cases
+      if (message.toLowerCase().includes("invalid"))
+        message = "Invalid email or password";
+      if (message.toLowerCase().includes("unauthorized"))
+        message = "Invalid credentials";
+
+      throw new Error(message);
     } finally {
       setLoading(false);
     }
@@ -80,6 +92,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
     try {
       const res = await auth.register(name, email, password);
+      if (!res?.token) throw new Error("Invalid register response from server");
+
       localStorage.setItem("token", res.token);
       setToken(res.token);
 
@@ -87,10 +101,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(u);
     } catch (err: any) {
       console.error("Registration failed:", err);
-      localStorage.removeItem("token");
-      setToken(null);
-      setUser(null);
-      throw err;
+      let message =
+        err?.response?.data?.message ||
+        err?.response?.data?.error ||
+        err.message ||
+        "Registration failed";
+      throw new Error(message);
     } finally {
       setLoading(false);
     }

@@ -1,16 +1,18 @@
 import React, { useState, ChangeEvent } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import AnimatedWrapper from "../components/AnimatedWrapper";
 
 const Login: React.FC = () => {
   const { login } = useAuth();
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault(); // stops page reload
     setError(null);
     setLoading(true);
 
@@ -18,7 +20,11 @@ const Login: React.FC = () => {
       await login(email, password);
     } catch (err: any) {
       console.error("Login error caught:", err);
-      setError(err.response?.data?.message || err.message || "Login failed");
+      const message =
+        err?.response?.data?.message ||
+        err?.message ||
+        "Invalid email or password.";
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -36,7 +42,6 @@ const Login: React.FC = () => {
             onSubmit={handleSubmit}
             className="space-y-6 sm:space-y-8 md:space-y-10"
           >
-            {/* Email */}
             <div>
               <label
                 htmlFor="email"
@@ -54,14 +59,10 @@ const Login: React.FC = () => {
                 }
                 required
                 autoComplete="email"
-                className="w-full px-4 sm:px-5 md:px-6 py-3 sm:py-4 border border-gray-300 rounded-lg sm:rounded-xl
-                     text-gray-900 placeholder-gray-400
-                     focus:outline-none focus:ring-2 sm:focus:ring-4 focus:ring-indigo-400 focus:border-indigo-400
-                     transition duration-300 text-sm sm:text-base"
+                className="w-full px-4 sm:px-5 md:px-6 py-3 sm:py-4 border border-gray-300 rounded-lg sm:rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 sm:focus:ring-4 focus:ring-indigo-400 focus:border-indigo-400 transition duration-300 text-sm sm:text-base"
               />
             </div>
 
-            {/* Password */}
             <div>
               <label
                 htmlFor="password"
@@ -79,14 +80,11 @@ const Login: React.FC = () => {
                 }
                 required
                 autoComplete="current-password"
-                className="w-full px-4 sm:px-5 md:px-6 py-3 sm:py-4 border border-gray-300 rounded-lg sm:rounded-xl
-                     text-gray-900 placeholder-gray-400
-                     focus:outline-none focus:ring-2 sm:focus:ring-4 focus:ring-indigo-400 focus:border-indigo-400
-                     transition duration-300 text-sm sm:text-base"
+                className="w-full px-4 sm:px-5 md:px-6 py-3 sm:py-4 border border-gray-300 rounded-lg sm:rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 sm:focus:ring-4 focus:ring-indigo-400 focus:border-indigo-400 transition duration-300 text-sm sm:text-base"
               />
             </div>
 
-            {/* Error */}
+            {/* ✅ Error message now shows immediately */}
             {error && (
               <p
                 className="text-xs sm:text-sm text-red-600 text-center font-semibold"
@@ -96,14 +94,10 @@ const Login: React.FC = () => {
               </p>
             )}
 
-            {/* Button */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 sm:py-3 bg-indigo-600 hover:bg-indigo-700
-                   disabled:opacity-50 disabled:cursor-not-allowed
-                   text-white font-semibold rounded-lg sm:rounded-xl
-                   shadow-md hover:shadow-lg transition duration-300 text-sm sm:text-base"
+              className="w-full py-2.5 sm:py-3 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-lg sm:rounded-xl shadow-md hover:shadow-lg transition duration-300 text-sm sm:text-base"
             >
               {loading ? "Logging in..." : "Log in"}
             </button>
