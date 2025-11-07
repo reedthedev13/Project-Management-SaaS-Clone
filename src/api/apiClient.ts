@@ -1,5 +1,5 @@
-// src/api/apiClient.ts
 import { User } from "../contexts/UserContext";
+import { useAuth } from "../contexts/AuthContext";
 
 // Dynamically choose API URL
 const BASE_URL =
@@ -11,9 +11,12 @@ const BASE_URL =
 // Core fetch helper
 export async function apiRequest<T>(
   endpoint: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
+  authToken?: string // optionally pass token from AuthContext
 ): Promise<T> {
-  const token = localStorage.getItem("token");
+  // Prefer token from parameter (AuthContext), fallback to localStorage
+  const token = authToken ?? localStorage.getItem("token");
+
   const headers: HeadersInit = {
     "Content-Type": "application/json",
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -64,26 +67,34 @@ export const loginUser = (payload: { email: string; password: string }) =>
 // ----------------------
 // User Endpoints
 // ----------------------
-export const getUserProfile = (): Promise<User> =>
-  apiRequest<User>("/users/me");
+export const getUserProfile = (authToken?: string): Promise<User> =>
+  apiRequest<User>("/users/me", {}, authToken);
 
-export const updateUserProfile = (payload: Partial<User>) =>
-  apiRequest<User>("/users/me", {
-    method: "PUT",
-    body: JSON.stringify(payload),
-  });
+export const updateUserProfile = (payload: Partial<User>, authToken?: string) =>
+  apiRequest<User>(
+    "/users/me",
+    { method: "PUT", body: JSON.stringify(payload) },
+    authToken
+  );
 
-export const deleteUserAccount = () =>
-  apiRequest<void>("/users/me", { method: "DELETE" });
+export const deleteUserAccount = (authToken?: string) =>
+  apiRequest<void>("/users/me", { method: "DELETE" }, authToken);
 
-export const getUserPreferences = () =>
-  apiRequest<{ theme: "light" | "dark" }>("/users/preferences");
+export const getUserPreferences = (authToken?: string) =>
+  apiRequest<{ theme: "light" | "dark" }>("/users/preferences", {}, authToken);
 
-export const updateUserPreferences = (payload: { theme: "light" | "dark" }) =>
-  apiRequest("/users/preferences", {
-    method: "PUT",
-    body: JSON.stringify(payload),
-  });
+export const updateUserPreferences = (
+  payload: { theme: "light" | "dark" },
+  authToken?: string
+) =>
+  apiRequest(
+    "/users/preferences",
+    { method: "PUT", body: JSON.stringify(payload) },
+    authToken
+  );
+
+// ----------------------
+// Boards & Tasks Endpoints remain unchanged
 
 // ----------------------
 // Boards Endpoints

@@ -5,7 +5,7 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { useAuth } from "./contexts/AuthContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import AnimatedWrapper from "./components/AnimatedWrapper";
 
@@ -24,14 +24,20 @@ const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const { user, loading } = useAuth();
-  if (loading) return <div>Loading...</div>;
+  if (loading)
+    return (
+      <div className="p-6 text-gray-500 dark:text-gray-400">Loading...</div>
+    );
   if (!user) return <Navigate to="/auth" replace />;
   return <>{children}</>;
 };
 
 const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, loading } = useAuth();
-  if (loading) return <div>Loading...</div>;
+  if (loading)
+    return (
+      <div className="p-6 text-gray-500 dark:text-gray-400">Loading...</div>
+    );
   if (user) return <Navigate to="/dashboard" replace />;
   return <>{children}</>;
 };
@@ -44,9 +50,10 @@ const App: React.FC = () => {
     null
   );
 
-  // Fetch backend theme preference only when user is logged in
+  // Fetch backend theme preference only when user is logged in and auth finished loading
   useEffect(() => {
-    if (!user) return;
+    if (!user || authLoading) return;
+
     const fetchTheme = async () => {
       try {
         const prefs = await apiRequest<{ theme: "light" | "dark" }>(
@@ -58,13 +65,16 @@ const App: React.FC = () => {
         setInitialTheme("light");
       }
     };
-    fetchTheme();
-  }, [user]);
 
-  // Fetch projects only when user is logged in
+    fetchTheme();
+  }, [user, authLoading]);
+
+  // Fetch projects only when user is logged in and auth finished loading
   useEffect(() => {
-    if (!user) return;
+    if (!user || authLoading) return;
+
     const fetchProjects = async () => {
+      setLoadingProjects(true);
       try {
         const data = await apiRequest("/boards", { method: "GET" });
         const boards = Array.isArray(data) ? data : [];
@@ -87,8 +97,9 @@ const App: React.FC = () => {
         setLoadingProjects(false);
       }
     };
+
     fetchProjects();
-  }, [user]);
+  }, [user, authLoading]);
 
   // Toggle task completion
   const toggleTaskCompletion = async (projectId: number, taskId: number) => {
@@ -127,7 +138,7 @@ const App: React.FC = () => {
     }
   };
 
-  // Show loading screen until auth & theme are ready
+  // Show loading screen until auth, theme, and projects are ready
   if (authLoading || (!initialTheme && user)) {
     return (
       <div className="p-6 text-gray-500 dark:text-gray-400">Loading...</div>
@@ -137,84 +148,79 @@ const App: React.FC = () => {
   return (
     <ThemeProvider initialTheme={initialTheme || "light"}>
       <AnimatedWrapper>
-        <AuthProvider>
-          <Router>
-            <Routes>
-              <Route path="/" element={<LandingPage />} />
+        <Router>
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
 
-              <Route
-                path="/auth"
-                element={
-                  <PublicRoute>
-                    <AuthPage />
-                  </PublicRoute>
-                }
-              />
+            <Route
+              path="/auth"
+              element={
+                <PublicRoute>
+                  <AuthPage />
+                </PublicRoute>
+              }
+            />
 
-              <Route
-                path="/dashboard"
-                element={
-                  <PrivateRoute>
-                    <Dashboard
-                      projects={projects}
-                      loading={loadingProjects}
-                      toggleTaskCompletion={toggleTaskCompletion}
-                    />
-                  </PrivateRoute>
-                }
-              />
+            <Route
+              path="/dashboard"
+              element={
+                <PrivateRoute>
+                  <Dashboard
+                    projects={projects}
+                    loading={loadingProjects}
+                    toggleTaskCompletion={toggleTaskCompletion}
+                  />
+                </PrivateRoute>
+              }
+            />
 
-              <Route
-                path="/projects"
-                element={
-                  <PrivateRoute>
-                    <ProjectsPage
-                      projects={projects}
-                      setProjects={setProjects}
-                      toggleTaskCompletion={toggleTaskCompletion}
-                    />
-                  </PrivateRoute>
-                }
-              />
+            <Route
+              path="/projects"
+              element={
+                <PrivateRoute>
+                  <ProjectsPage
+                    projects={projects}
+                    setProjects={setProjects}
+                    toggleTaskCompletion={toggleTaskCompletion}
+                  />
+                </PrivateRoute>
+              }
+            />
 
-              <Route
-                path="/tasks"
-                element={
-                  <PrivateRoute>
-                    <TasksPage
-                      projects={projects}
-                      setProjects={setProjects}
-                      toggleTaskCompletion={toggleTaskCompletion}
-                    />
-                  </PrivateRoute>
-                }
-              />
+            <Route
+              path="/tasks"
+              element={
+                <PrivateRoute>
+                  <TasksPage
+                    projects={projects}
+                    setProjects={setProjects}
+                    toggleTaskCompletion={toggleTaskCompletion}
+                  />
+                </PrivateRoute>
+              }
+            />
 
-              <Route
-                path="/calendar"
-                element={
-                  <PrivateRoute>
-                    <CalendarPage
-                      projects={projects}
-                      setProjects={setProjects}
-                    />
-                  </PrivateRoute>
-                }
-              />
+            <Route
+              path="/calendar"
+              element={
+                <PrivateRoute>
+                  <CalendarPage projects={projects} setProjects={setProjects} />
+                </PrivateRoute>
+              }
+            />
 
-              <Route
-                path="/settings"
-                element={
-                  <PrivateRoute>
-                    <SettingsPage />
-                  </PrivateRoute>
-                }
-              />
+            <Route
+              path="/settings"
+              element={
+                <PrivateRoute>
+                  <SettingsPage />
+                </PrivateRoute>
+              }
+            />
 
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </Router>
-        </AuthProvider>
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Router>
       </AnimatedWrapper>
     </ThemeProvider>
   );

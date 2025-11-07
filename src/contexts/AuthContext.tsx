@@ -1,6 +1,17 @@
-import { createContext, useState, useContext, useEffect } from "react";
+import {
+  createContext,
+  useState,
+  useContext,
+  useEffect,
+  ReactNode,
+} from "react";
 import * as auth from "../services/auth";
-import { User } from "../contexts/UserContext";
+
+export interface User {
+  id: number;
+  name?: string;
+  email?: string;
+}
 
 type AuthCtx = {
   token: string | null;
@@ -13,74 +24,75 @@ type AuthCtx = {
 
 const AuthContext = createContext<AuthCtx | undefined>(undefined);
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useState<string | null>(
     localStorage.getItem("token")
   );
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Hydrate user from token or force logout if invalid
+  // Hydrate user from token on mount
   useEffect(() => {
-    let ignore = false;
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setUser(null);
+      setLoading(false);
+      return;
+    }
 
     const fetchUser = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        setUser(null);
-        setLoading(false);
-        return;
-      }
-
       try {
-        const u = await auth.me();
-        if (!ignore) setUser(u);
+        const profile = await auth.me();
+        setUser(profile);
       } catch (err) {
         console.warn("Token invalid/expired, logging out.");
         localStorage.removeItem("token");
-        if (!ignore) {
-          setUser(null);
-        }
+        setUser(null);
       } finally {
-        if (!ignore) setLoading(false);
+        setLoading(false);
       }
     };
 
     fetchUser();
-    return () => {
-      ignore = true;
-    };
   }, []);
 
   const login = async (email: string, password: string) => {
+    setLoading(true);
     try {
-      const res = await auth.login(email, password); // returns { token, user }
-      setToken(res.token);
-      setUser(res.user);
+      const res = await auth.login(email, password);
       localStorage.setItem("token", res.token);
+      setToken(res.token);
+
+      const u = await auth.me();
+      setUser(u);
     } catch (err: any) {
       console.error("Login failed:", err);
-      // Clear any partial token
       localStorage.removeItem("token");
       setToken(null);
       setUser(null);
-      throw new Error(err?.message || "Login failed");
+      throw err;
+    } finally {
+      setLoading(false);
     }
   };
 
   const register = async (name: string, email: string, password: string) => {
+    setLoading(true);
     try {
-      const res = await auth.register(name, email, password); // returns { token, user }
-      setToken(res.token);
-      setUser(res.user);
+      const res = await auth.register(name, email, password);
       localStorage.setItem("token", res.token);
+      setToken(res.token);
+
+      const u = await auth.me();
+      setUser(u);
     } catch (err: any) {
       console.error("Registration failed:", err);
-      // Clear any partial token
       localStorage.removeItem("token");
       setToken(null);
       setUser(null);
-      throw new Error(err?.message || "Registration failed");
+      throw err;
+    } finally {
+      setLoading(false);
     }
   };
 

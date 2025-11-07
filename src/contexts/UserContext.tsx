@@ -16,6 +16,7 @@ export interface User {
 interface UserContextType {
   user: User | null;
   setUser: (user: User | null) => void;
+  loading: boolean;
   refreshUser: () => Promise<void>;
 }
 
@@ -25,23 +26,34 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [user, setUser] = useState<User | null>(null);
-
-  // Load profile on mount
-  useEffect(() => {
-    refreshUser();
-  }, []);
+  const [loading, setLoading] = useState(true);
 
   const refreshUser = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setUser(null);
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
     try {
       const profile = await getUserProfile();
       setUser(profile);
     } catch (err) {
       console.error("Failed to fetch user profile:", err);
+      setUser(null);
+    } finally {
+      setLoading(false);
     }
   };
 
+  useEffect(() => {
+    refreshUser();
+  }, []);
+
   return (
-    <UserContext.Provider value={{ user, setUser, refreshUser }}>
+    <UserContext.Provider value={{ user, setUser, loading, refreshUser }}>
       {children}
     </UserContext.Provider>
   );
