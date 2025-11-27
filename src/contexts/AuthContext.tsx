@@ -7,6 +7,8 @@ import {
 } from "react";
 import * as auth from "../services/auth";
 
+const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5001/api";
+
 export interface User {
   id: number;
   name?: string;
@@ -56,35 +58,37 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const login = async (email: string, password: string) => {
-    setLoading(true);
     try {
-      const res = await auth.login(email, password);
-      if (!res?.token) throw new Error("Invalid login response from server");
+      const res = await fetch(`${BASE_URL}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
 
-      localStorage.setItem("token", res.token);
-      setToken(res.token);
+      let data: any = null;
 
-      const u = await auth.me();
-      setUser(u);
+      // Safely parse JSON (backend might return HTML on error)
+      try {
+        data = await res.json();
+      } catch {
+        throw new Error("Server error. Please try again.");
+      }
+
+      // Handle non-200 responses
+      if (!res.ok) {
+        const message =
+          data?.message || data?.error || "Invalid email or password";
+
+        throw new Error(message);
+      }
+
+      // Successful login
+      localStorage.setItem("token", data.token);
+      setToken(data.token);
+      setUser(data.user);
     } catch (err: any) {
       console.error("Login failed:", err);
-
-      // Extract proper error message
-      let message =
-        err?.response?.data?.message ||
-        err?.response?.data?.error ||
-        err.message ||
-        "Invalid email or password";
-
-      // Normalize common cases
-      if (message.toLowerCase().includes("invalid"))
-        message = "Invalid email or password";
-      if (message.toLowerCase().includes("unauthorized"))
-        message = "Invalid credentials";
-
-      throw new Error(message);
-    } finally {
-      setLoading(false);
+      throw new Error(err.message || "Invalid email or password");
     }
   };
 

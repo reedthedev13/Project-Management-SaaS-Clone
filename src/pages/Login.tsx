@@ -12,7 +12,8 @@ const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault(); // stops page reload
+    e.preventDefault();
+
     setError(null);
     setLoading(true);
 
@@ -20,11 +21,7 @@ const Login: React.FC = () => {
       await login(email, password);
     } catch (err: any) {
       console.error("Login error caught:", err);
-      const message =
-        err?.response?.data?.message ||
-        err?.message ||
-        "Invalid email or password.";
-      setError(message);
+      setError(err.message || "Invalid email or password");
     } finally {
       setLoading(false);
     }

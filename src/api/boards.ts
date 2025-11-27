@@ -1,10 +1,10 @@
 import axios from "axios";
 import apiClient from "./api";
 
-const API_URL = "http://localhost:5001/api/boards";
+const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5001/api";
 
 export const getBoards = async (token: string) => {
-  const res = await axios.get(API_URL, {
+  const res = await axios.get(BASE_URL, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return res.data;
@@ -16,7 +16,7 @@ export const editBoard = async (boardId: number, title: string) => {
 
 export const createBoard = async (token: string, title: string) => {
   const res = await axios.post(
-    API_URL,
+    BASE_URL,
     { title },
     { headers: { Authorization: `Bearer ${token}` } }
   );
@@ -29,7 +29,7 @@ export const updateBoard = async (
   title: string
 ) => {
   const res = await axios.put(
-    `${API_URL}/${boardId}`,
+    `${BASE_URL}/${boardId}`,
     { title },
     { headers: { Authorization: `Bearer ${token}` } }
   );
@@ -37,7 +37,7 @@ export const updateBoard = async (
 };
 
 export const deleteBoard = async (token: string, boardId: number) => {
-  await axios.delete(`${API_URL}/${boardId}`, {
+  await axios.delete(`${BASE_URL}/${boardId}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
 };
