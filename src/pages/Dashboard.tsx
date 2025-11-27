@@ -1,5 +1,5 @@
 import React from "react";
-import AnimatedWrapper from "../components/AnimatedWrapper";
+import PageTransition from "../components/PageTransition";
 import DashboardLayout from "../components/DashboardLayout";
 import DashboardCard from "../components/DashboardCard";
 
@@ -49,7 +49,7 @@ const Dashboard: React.FC<DashboardProps> = ({ projects, loading }) => {
     .slice(0, 5);
 
   return (
-    <AnimatedWrapper>
+    <PageTransition>
       <DashboardLayout title="Dashboard">
         {/* Metrics */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6">
@@ -134,7 +134,7 @@ const Dashboard: React.FC<DashboardProps> = ({ projects, loading }) => {
           )}
         </div>
       </DashboardLayout>
-    </AnimatedWrapper>
+    </PageTransition>
   );
 };
 

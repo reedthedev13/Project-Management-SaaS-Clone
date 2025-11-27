@@ -3,8 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Input from "../components/Input";
 import Button from "../components/Button";
 import { useAuth } from "../contexts/AuthContext";
-import AnimatedWrapper from "../components/AnimatedWrapper";
-
+import PageTransition from "../components/PageTransition";
 const Register: React.FC = () => {
   const { register } = useAuth();
   const navigate = useNavigate();
@@ -68,7 +67,7 @@ const Register: React.FC = () => {
   };
 
   return (
-    <AnimatedWrapper>
+    <PageTransition>
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-6">
         <div className="bg-white rounded-2xl shadow-xl p-10 max-w-md w-full">
           <h1 className="text-5xl font-extrabold text-center text-gray-900 mb-12 tracking-tight">
@@ -148,7 +147,7 @@ const Register: React.FC = () => {
           </form>
         </div>
       </div>
-    </AnimatedWrapper>
+    </PageTransition>
   );
 };
 

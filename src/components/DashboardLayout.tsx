@@ -2,6 +2,7 @@ import React, { ReactNode, useState } from "react";
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
 import { useTheme } from "../contexts/ThemeContext";
+import PageTransition from "../components/PageTransition";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -44,7 +45,11 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         }`}
       >
         <Topbar title={title} toggleSidebar={toggleSidebar} />
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6">{children}</main>
+
+        {/* ✨ Smooth animated page content */}
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6">
+          <PageTransition>{children}</PageTransition>
+        </main>
       </div>
     </div>
   );

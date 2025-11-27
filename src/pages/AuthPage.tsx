@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 import Login from "./Login";
 import Register from "./Register";
-import AnimatedWrapper from "../components/AnimatedWrapper";
-
+import PageTransition from "../components/PageTransition";
 const AuthPage: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
 
   return (
-    <AnimatedWrapper>
+    <PageTransition>
       <div className="min-h-screen flex items-center justify-center bg-gray-50 ">
         <div className="max-w-full w-full bg-white rounded-lg shadow-lg p-6">
           {isLogin ? (
@@ -39,7 +38,7 @@ const AuthPage: React.FC = () => {
           )}
         </div>
       </div>
-    </AnimatedWrapper>
+    </PageTransition>
   );
 };
 

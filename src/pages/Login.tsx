@@ -1,7 +1,7 @@
 import React, { useState, ChangeEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import AnimatedWrapper from "../components/AnimatedWrapper";
+import PageTransition from "../components/PageTransition";
 
 const Login: React.FC = () => {
   const { login } = useAuth();
@@ -28,7 +28,7 @@ const Login: React.FC = () => {
   };
 
   return (
-    <AnimatedWrapper>
+    <PageTransition>
       <div className="max-w-full min-h-screen flex items-center justify-center bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 px-4 sm:px-6 md:px-12">
         <div className="bg-white rounded-2xl sm:rounded-3xl shadow-lg mx-auto p-6 sm:p-8 md:p-10 max-w-sm sm:max-w-md w-full">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-center text-gray-900 mb-8 sm:mb-10 md:mb-12 tracking-tight">
@@ -101,7 +101,7 @@ const Login: React.FC = () => {
           </form>
         </div>
       </div>
-    </AnimatedWrapper>
+    </PageTransition>
   );
 };
 
