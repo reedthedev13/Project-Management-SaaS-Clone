@@ -19,20 +19,20 @@ export interface Project {
 
 interface DashboardCardProps {
   project: Project;
-  onUpdate?: (updated: Project) => void;
+  onUpdate?: (p: Project) => void;
   onDelete?: (id: number) => void;
   onToggleTask?: (taskId: number) => void;
   readOnly?: boolean;
   children?: React.ReactNode;
 }
 
-const DashboardCard: React.FC<DashboardCardProps> = ({
+export default function DashboardCard({
   project,
   onUpdate,
   onDelete,
   onToggleTask,
   readOnly = false,
-}) => {
+}: DashboardCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [editing, setEditing] = useState(false);
   const [newTitle, setNewTitle] = useState(project.title);
@@ -41,21 +41,21 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
   const renameInputRef = useRef<HTMLInputElement>(null);
   const deleteModalRef = useRef<HTMLDivElement>(null);
 
-  // Focus rename input when editing
+  // Auto-focus rename input
   useEffect(() => {
-    if (editing && renameInputRef.current) renameInputRef.current.focus();
+    if (editing) renameInputRef.current?.focus();
   }, [editing]);
 
-  // Focus modal div when showing delete modal
+  // Auto-focus modal
   useEffect(() => {
-    if (showDeleteModal && deleteModalRef.current)
-      deleteModalRef.current.focus();
+    if (showDeleteModal) deleteModalRef.current?.focus();
   }, [showDeleteModal]);
 
   const handleRename = async () => {
     if (!newTitle.trim()) return;
     try {
       const token = localStorage.getItem("token");
+
       await apiRequest(`/boards/${project.id}`, {
         method: "PUT",
         headers: {
@@ -64,181 +64,191 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
         },
         body: JSON.stringify({ title: newTitle }),
       });
+
       onUpdate?.({ ...project, title: newTitle });
       setEditing(false);
     } catch (err) {
-      console.error("Failed to rename project:", err);
+      console.error("Rename failed:", err);
     }
   };
 
   const handleDelete = async () => {
     try {
       const token = localStorage.getItem("token");
+
       await apiRequest(`/boards/${project.id}`, {
         method: "DELETE",
         headers: {
           Authorization: token ? `Bearer ${token}` : "",
         },
       });
+
       onDelete?.(project.id);
       setShowDeleteModal(false);
     } catch (err) {
-      console.error("Failed to delete project:", err);
+      console.error("Delete failed:", err);
     }
   };
 
   return (
-    <motion.div
-      className="p-6 border rounded-lg shadow-sm bg-white dark:bg-gray-900 dark:border-gray-700 flex flex-col"
-      whileHover={{ scale: 1.03, boxShadow: "0 12px 24px rgba(0,0,0,0.25)" }}
-      transition={{ type: "spring", stiffness: 300, damping: 20 }}
-    >
-      {/* Project Title */}
-      <h3
-        className="font-semibold text-gray-900 dark:text-gray-100 cursor-pointer"
-        onClick={() => setIsExpanded(!isExpanded)}
+    <>
+      {/* Card */}
+      <motion.div
+        className="p-6 border rounded-lg shadow-sm bg-white dark:bg-gray-900 dark:border-gray-700 flex flex-col relative"
+        whileHover={{ scale: 1.03, boxShadow: "0 12px 24px rgba(0,0,0,0.25)" }}
+        transition={{ type: "spring", stiffness: 300, damping: 20 }}
       >
-        {editing ? (
-          <input
-            ref={renameInputRef}
-            type="text"
-            value={newTitle || ""}
-            onChange={(e) => setNewTitle(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleRename()}
-            className="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-green-400"
-          />
-        ) : (
-          project.title
-        )}
-      </h3>
-
-      {/* Buttons under title */}
-      {!readOnly && (
-        <div className="flex gap-2 mt-3 flex-wrap">
+        {/* Header */}
+        <h3
+          className="font-semibold text-gray-900 dark:text-gray-100 cursor-pointer"
+          onClick={() => setIsExpanded((s) => !s)}
+        >
           {editing ? (
-            <>
-              <button
-                onClick={handleRename}
-                className="flex items-center gap-1 bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded shadow-sm transition text-sm"
-              >
-                <Edit2 size={16} /> Save
-              </button>
-              <button
-                onClick={() => {
-                  setEditing(false);
-                  setNewTitle(project.title);
-                }}
-                className="bg-gray-300 hover:bg-gray-400 px-3 py-1 rounded shadow-sm transition text-sm"
-              >
-                Cancel
-              </button>
-            </>
+            <input
+              ref={renameInputRef}
+              type="text"
+              value={newTitle}
+              onChange={(e) => setNewTitle(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleRename()}
+              className="w-full border p-2 rounded focus:ring-2 focus:ring-green-400"
+            />
           ) : (
-            <>
-              <button
-                onClick={() => setEditing(true)}
-                className="flex items-center gap-1 bg-yellow-400 hover:bg-yellow-500 px-3 py-1 rounded shadow-sm transition text-sm"
-              >
-                <Edit2 size={16} /> Rename
-              </button>
-              <button
-                onClick={() => setShowDeleteModal(true)}
-                className="flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded shadow-sm transition text-sm"
-              >
-                <Trash2 size={16} /> Delete
-              </button>
-            </>
+            project.title
           )}
-        </div>
-      )}
+        </h3>
 
-      {/* Progress */}
-      <div className="text-sm text-gray-700 dark:text-gray-300 mt-2">
-        {project.tasksCompleted}/{project.tasksTotal} tasks completed
-      </div>
-
-      {/* Tasks list dropdown */}
-      <AnimatePresence initial={false}>
-        {isExpanded && (
-          <motion.ul
-            key="tasks"
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="mt-2 overflow-hidden space-y-2"
-          >
-            {project.tasks.map((task) => (
-              <li
-                key={`${project.id}-${task.id}`}
-                className="flex justify-between items-center p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition"
-              >
-                <span
-                  className={`${
-                    task.completed
-                      ? "line-through text-gray-400 dark:text-gray-500"
-                      : "text-gray-800 dark:text-gray-100"
-                  }`}
+        {/* Action Buttons */}
+        {!readOnly && (
+          <div className="flex gap-2 mt-3 flex-wrap">
+            {editing ? (
+              <>
+                <button
+                  onClick={handleRename}
+                  className="flex items-center gap-1 bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm"
                 >
-                  {task.title}
-                </span>
-                {!readOnly && (
-                  <input
-                    type="checkbox"
-                    checked={task.completed}
-                    onChange={() => onToggleTask?.(task.id)}
-                    className="accent-indigo-600 dark:accent-indigo-500"
-                  />
-                )}
-              </li>
-            ))}
-          </motion.ul>
-        )}
-      </AnimatePresence>
+                  <Edit2 size={16} /> Save
+                </button>
 
-      {/* Modal-style Delete Confirmation */}
-      {!readOnly && (
-        <AnimatePresence>
-          {showDeleteModal && (
-            <motion.div
-              className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+                <button
+                  onClick={() => {
+                    setEditing(false);
+                    setNewTitle(project.title);
+                  }}
+                  className="bg-gray-300 hover:bg-gray-400 px-3 py-1 rounded text-sm"
+                >
+                  Cancel
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => setEditing(true)}
+                  className="flex items-center gap-1 bg-yellow-400 hover:bg-yellow-500 px-3 py-1 rounded text-sm"
+                >
+                  <Edit2 size={16} /> Rename
+                </button>
+
+                <button
+                  onClick={() => setShowDeleteModal(true)}
+                  className="flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"
+                >
+                  <Trash2 size={16} /> Delete
+                </button>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* Progress */}
+        <div className="text-sm text-gray-700 dark:text-gray-300 mt-2">
+          {project.tasksCompleted}/{project.tasksTotal} tasks completed
+        </div>
+
+        {/* Expandable Task List */}
+        <AnimatePresence initial={false}>
+          {isExpanded && (
+            <motion.ul
+              key="tasks"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="mt-2 overflow-hidden space-y-2"
             >
-              <motion.div
-                ref={deleteModalRef}
-                tabIndex={0}
-                className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-80"
-                initial={{ scale: 0.8 }}
-                animate={{ scale: 1 }}
-                exit={{ scale: 0.8 }}
-                onKeyDown={(e) => e.key === "Enter" && handleDelete()}
-              >
-                <p className="mb-4 text-gray-900 dark:text-gray-100">
-                  Are you sure you want to delete this project?
-                </p>
-                <div className="flex gap-2 justify-end">
-                  <button
-                    className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded transition"
-                    onClick={() => setShowDeleteModal(false)}
+              {project.tasks.map((task) => (
+                <li
+                  key={task.id}
+                  className="flex justify-between items-center p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
+                >
+                  <span
+                    className={
+                      task.completed
+                        ? "line-through text-gray-400 dark:text-gray-500"
+                        : "text-gray-800 dark:text-gray-100"
+                    }
                   >
-                    Cancel
-                  </button>
-                  <button
-                    className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded transition"
-                    onClick={handleDelete}
-                  >
-                    Delete
-                  </button>
-                </div>
-              </motion.div>
-            </motion.div>
+                    {task.title}
+                  </span>
+
+                  {!readOnly && (
+                    <input
+                      type="checkbox"
+                      checked={task.completed}
+                      onChange={() => onToggleTask?.(task.id)}
+                      className="accent-indigo-600 dark:accent-indigo-500"
+                    />
+                  )}
+                </li>
+              ))}
+            </motion.ul>
           )}
         </AnimatePresence>
-      )}
-    </motion.div>
-  );
-};
+      </motion.div>
 
-export default DashboardCard;
+      {/* ========================================================= */}
+      {/* FIXED MODAL — Always centered + working delete           */}
+      {/* ========================================================= */}
+
+      <AnimatePresence>
+        {showDeleteModal && (
+          <motion.div
+            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              ref={deleteModalRef}
+              tabIndex={0}
+              className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-80"
+              initial={{ scale: 0.85, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.85, opacity: 0 }}
+              onKeyDown={(e) => e.key === "Enter" && handleDelete()}
+            >
+              <p className="mb-4 text-gray-900 dark:text-gray-100">
+                Are you sure you want to delete this project?
+              </p>
+
+              <div className="flex gap-2 justify-end">
+                <button
+                  className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded"
+                  onClick={() => setShowDeleteModal(false)}
+                >
+                  Cancel
+                </button>
+
+                <button
+                  className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded"
+                  onClick={handleDelete}
+                >
+                  Delete
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
